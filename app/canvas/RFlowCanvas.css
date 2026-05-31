@@ -1,0 +1,38 @@
+.canvas-wrapper {
+  width: 100vw;
+  height: 100vh;
+}
+
+.canvas-add-button {
+  position: absolute;
+  z-index: 10;
+  top: 16px;
+  left: 16px;
+  cursor: pointer;
+  font-size: 2rem;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid darkgray;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas-add-button:hover {
+  background-color: lightgray;
+}
+
+.user-input {
+  position: absolute;
+  z-index: 10;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 4rem 1rem 1rem;
+  border: 1px solid darkgray;
+  border-radius: 10px;
+  font-size: 14px;
+  height: 3.5rem;
+  width: 50%;
+}
