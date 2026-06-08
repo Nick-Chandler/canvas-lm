@@ -22,9 +22,9 @@ import './RFlowCanvas.css';
 type Position = { x: number; y: number };
 
 // Sample positions
-let p1: Position = { x: 100, y: 100 }
-let p2: Position = { x: 300, y: 200 }
-let origin: Position = { x: 0, y: 0 }
+const p1: Position = { x: 100, y: 100 }
+const p2: Position = { x: 300, y: 200 }
+const origin: Position = { x: 0, y: 0 }
 
 // Sample nodes on load
 const initialNodes: Node[] = [
@@ -59,7 +59,15 @@ export default function InfiniteCanvas() {
   // Edge source of truth
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
   const [input, setInput] = React.useState('');
+  const [response, setResponse] = React.useState('');
 
+
+  const handleLogState = () => {
+    console.log('nodes:', nodes);
+    console.log(JSON.stringify(nodes, null, 2));
+    console.log('edges:', edges);
+    console.log(JSON.stringify(edges, null, 2));
+  };
 
   const handleAddNode = () => {
     const id = String(nodes.length + 1);
@@ -71,26 +79,29 @@ export default function InfiniteCanvas() {
     setNodes([...nodes, node]);
   };
 
-  // Debug
-  React.useEffect(() => {
-    console.log('nodes:', JSON.stringify(nodes, null, 2));
-    console.log('edges:', JSON.stringify(edges, null, 2));
-  }, [nodes, edges]);
-
   return (
     <div className="canvas-wrapper">
-      <button onClick={handleAddNode} className="canvas-add-button">+</button>
+      <div className="canvas-toolbar">
+        <button onClick={handleAddNode}>+ Add Node</button>
+        <button onClick={handleLogState}>Log State</button>
+      </div>
+      {response && <pre className="response-box">{response}</pre>}
       <form onSubmit={async (e) => {
         e.preventDefault();
-        console.log(`submitted: "${input}"`);
         setInput('');
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: input }),
         });
-        const { text } = await res.json();
-        console.log(text);
+        setResponse('');
+        const reader = res.body!.getReader();
+        const decoder = new TextDecoder();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          setResponse(prev => prev + decoder.decode(value));
+        }
       }}>
         <input
           className="user-input"

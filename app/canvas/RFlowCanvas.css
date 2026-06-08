@@ -3,24 +3,39 @@
   height: 100vh;
 }
 
-.canvas-add-button {
+.canvas-toolbar {
   position: absolute;
   z-index: 10;
   top: 16px;
   left: 16px;
-  cursor: pointer;
-  font-size: 2rem;
-  width: 3rem;
-  height: 3rem;
-  border: 1px solid darkgray;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 8px;
 }
 
-.canvas-add-button:hover {
+.canvas-toolbar button {
+  padding: 6px 12px;
+  border: 1px solid darkgray;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.canvas-toolbar button:hover {
   background-color: lightgray;
+}
+
+.response-box {
+  position: absolute;
+  z-index: 10;
+  top: 8px;
+  right: 8px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 8px 12px;
+  border-radius: 6px;
+  max-width: 400px;
+  white-space: pre-wrap;
+  font-size: 13px;
 }
 
 .user-input {

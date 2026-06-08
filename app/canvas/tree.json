@@ -1,0 +1,28 @@
+{
+  "name": "U.S. Government",
+  "children": [
+    {
+      "name": "Legislative Branch",
+      "children": [
+        { "name": "Senate", "children": [] },
+        { "name": "House of Representatives", "children": [] }
+      ]
+    },
+    {
+      "name": "Executive Branch",
+      "children": [
+        { "name": "President", "children": [] },
+        { "name": "Vice President", "children": [] },
+        { "name": "Cabinet", "children": [] }
+      ]
+    },
+    {
+      "name": "Judicial Branch",
+      "children": [
+        { "name": "Supreme Court", "children": [] },
+        { "name": "Courts of Appeals", "children": [] },
+        { "name": "District Courts", "children": [] }
+      ]
+    }
+  ]
+}
