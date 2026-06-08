@@ -56,10 +56,12 @@ export default function InfiniteCanvas() {
 
   // Node source of truth
   const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
+  
   // Edge source of truth
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
   const [input, setInput] = React.useState('');
   const [response, setResponse] = React.useState('');
+  const [responseExpanded, setResponseExpanded] = React.useState(false);
 
 
   const handleLogState = () => {
@@ -79,33 +81,59 @@ export default function InfiniteCanvas() {
     setNodes([...nodes, node]);
   };
 
+  const handleGenerate = async (prompt: string) => {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+    if (!res.ok) {
+      setResponse(`Error: ${res.status} ${res.statusText}`);
+      return;
+    }
+    setResponse('');
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value);
+      full += chunk;
+      setResponse(full);
+    }
+    try {
+      const { nodes: newNodes, edges: newEdges } = JSON.parse(full);
+      setNodes(newNodes);
+      setEdges(newEdges);
+    } catch {
+      // response wasn't valid JSON — leave the canvas as-is
+    }
+  };
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setInput('');
+    await handleGenerate(input);
+  };
+
   return (
     <div className="canvas-wrapper">
       <div className="canvas-toolbar">
         <button onClick={handleAddNode}>+ Add Node</button>
         <button onClick={handleLogState}>Log State</button>
       </div>
-      {response && <pre className="response-box">{response}</pre>}
-      <form onSubmit={async (e) => {
-        e.preventDefault();
-        setInput('');
-        const res = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: input }),
-        });
-        setResponse('');
-        const reader = res.body!.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          setResponse(prev => prev + decoder.decode(value));
-        }
-      }}>
+      <div className="response-box">
+        <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
+          <span>Response</span>
+          <span>{responseExpanded ? '▲' : '▼'}</span>
+        </div>
+        {responseExpanded && <pre className="response-box-content">{response}</pre>}
+      </div>
+      <form onSubmit={handleSubmit}>
         <input
           className="user-input"
-          placeholder="What do you want to graph..."
+          placeholder="What do you want to diagram..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
