@@ -52,6 +52,35 @@ const initialEdges: Edge[] = [
   },
 ];
 
+// Parse the model's compact text format back into ReactFlow nodes/edges.
+// Format: "id|x,y|label[|type]" lines, a "---" separator, then "source>target" lines.
+function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
+  const [nodeSection = '', edgeSection = ''] = text.split(/^---$/m);
+
+  const nodes: Node[] = nodeSection
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [id, coords, label, type] = line.split('|');
+      const [x, y] = coords.split(',').map(Number);
+      const node: Node = { id, position: { x, y }, data: { label } };
+      if (type === 'input' || type === 'output') node.type = type;
+      return node;
+    });
+
+  const edges: Edge[] = edgeSection
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [source, target] = line.split('>');
+      return { id: `e${source}-${target}`, source, target };
+    });
+
+  return { nodes, edges };
+}
+
 export default function InfiniteCanvas() {
 
   // Node source of truth
@@ -61,7 +90,8 @@ export default function InfiniteCanvas() {
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
   const [input, setInput] = React.useState('');
   const [response, setResponse] = React.useState('');
-  const [responseExpanded, setResponseExpanded] = React.useState(false);
+  const [responseExpanded, setResponseExpanded] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
 
   const handleLogState = () => {
@@ -82,6 +112,7 @@ export default function InfiniteCanvas() {
   };
 
   const handleGenerate = async (prompt: string) => {
+    setLoading(true);
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -89,6 +120,7 @@ export default function InfiniteCanvas() {
     });
     if (!res.ok) {
       setResponse(`Error: ${res.status} ${res.statusText}`);
+      setLoading(false);
       return;
     }
     setResponse('');
@@ -103,11 +135,13 @@ export default function InfiniteCanvas() {
       setResponse(full);
     }
     try {
-      const { nodes: newNodes, edges: newEdges } = JSON.parse(full);
+      const { nodes: newNodes, edges: newEdges } = parseGraph(full);
       setNodes(newNodes);
       setEdges(newEdges);
     } catch {
-      // response wasn't valid JSON — leave the canvas as-is
+      // response wasn't in the expected format — leave the canvas as-is
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,6 +155,7 @@ export default function InfiniteCanvas() {
     <div className="canvas-wrapper">
       <div className="canvas-toolbar">
         <button onClick={handleAddNode}>+ Add Node</button>
+        <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
         <button onClick={handleLogState}>Log State</button>
       </div>
       <div className="response-box">
@@ -130,6 +165,7 @@ export default function InfiniteCanvas() {
         </div>
         {responseExpanded && <pre className="response-box-content">{response}</pre>}
       </div>
+      {loading && <div className="loading-watermark">Generating diagram...</div>}
       <form onSubmit={handleSubmit}>
         <input
           className="user-input"

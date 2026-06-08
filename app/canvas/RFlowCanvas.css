@@ -59,6 +59,19 @@
   overflow-y: auto;
 }
 
+.loading-watermark {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  user-select: none;
+}
+
 .user-input {
   position: absolute;
   z-index: 10;

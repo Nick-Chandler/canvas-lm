@@ -1,0 +1,104 @@
+{
+
+  "nodes": [
+
+    { "id": "1", "position": { "x": 0, "y": 0 }, "data": { "label": "Enlisted" }, "type": "input" },
+
+    { "id": "2", "position": { "x": 0, "y": 250 }, "data": { "label": "Airman Basic (E-1)" } },
+
+    { "id": "3", "position": { "x": 0, "y": 500 }, "data": { "label": "Airman (E-2)" } },
+
+    { "id": "4", "position": { "x": 0, "y": 750 }, "data": { "label": "Airman First Class (E-3)" } },
+
+    { "id": "5", "position": { "x": 0, "y": 1000 }, "data": { "label": "Senior Airman (E-4)" } },
+
+    { "id": "6", "position": { "x": 0, "y": 1250 }, "data": { "label": "Staff Sergeant (E-5)" } },
+
+    { "id": "7", "position": { "x": 0, "y": 1500 }, "data": { "label": "Technical Sergeant (E-6)" } },
+
+    { "id": "8", "position": { "x": 0, "y": 1750 }, "data": { "label": "Master Sergeant (E-7)" } },
+
+    { "id": "9", "position": { "x": 0, "y": 2000 }, "data": { "label": "Senior Master Sergeant (E-8)" } },
+
+    { "id": "10", "position": { "x": 0, "y": 2250 }, "data": { "label": "Chief Master Sergeant (E-9)" } },
+
+    { "id": "11", "position": { "x": 0, "y": 2500 }, "data": { "label": "Chief Master Sergeant of the Air Force" } },
+
+
+
+    { "id": "12", "position": { "x": 700, "y": 0 }, "data": { "label": "Officers" }, "type": "input" },
+
+    { "id": "13", "position": { "x": 700, "y": 250 }, "data": { "label": "Second Lieutenant (O-1)" } },
+
+    { "id": "14", "position": { "x": 700, "y": 500 }, "data": { "label": "First Lieutenant (O-2)" } },
+
+    { "id": "15", "position": { "x": 700, "y": 750 }, "data": { "label": "Captain (O-3)" } },
+
+    { "id": "16", "position": { "x": 700, "y": 1000 }, "data": { "label": "Major (O-4)" } },
+
+    { "id": "17", "position": { "x": 700, "y": 1250 }, "data": { "label": "Lieutenant Colonel (O-5)" } },
+
+    { "id": "18", "position": { "x": 700, "y": 1500 }, "data": { "label": "Colonel (O-6)" } },
+
+    { "id": "19", "position": { "x": 700, "y": 1750 }, "data": { "label": "Brigadier General (O-7)" } },
+
+    { "id": "20", "position": { "x": 700, "y": 2000 }, "data": { "label": "Major General (O-8)" } },
+
+    { "id": "21", "position": { "x": 700, "y": 2250 }, "data": { "label": "Lieutenant General (O-9)" } },
+
+    { "id": "22", "position": { "x": 700, "y": 2500 }, "data": { "label": "General (O-10)" } },
+
+    { "id": "23", "position": { "x": 700, "y": 2750 }, "data": { "label": "General of the Air Force (special)" }, "type": "output" }
+
+  ],
+
+  "edges": [
+
+    { "id": "e1-2", "source": "1", "target": "2" },
+
+    { "id": "e2-3", "source": "2", "target": "3" },
+
+    { "id": "e3-4", "source": "3", "target": "4" },
+
+    { "id": "e4-5", "source": "4", "target": "5" },
+
+    { "id": "e5-6", "source": "5", "target": "6" },
+
+    { "id": "e6-7", "source": "6", "target": "7" },
+
+    { "id": "e7-8", "source": "7", "target": "8" },
+
+    { "id": "e8-9", "source": "8", "target": "9" },
+
+    { "id": "e9-10", "source": "9", "target": "10" },
+
+    { "id": "e10-11", "source": "10", "target": "11" },
+
+
+
+    { "id": "e12-13", "source": "12", "target": "13" },
+
+    { "id": "e13-14", "source": "13", "target": "14" },
+
+    { "id": "e14-15", "source": "14", "target": "15" },
+
+    { "id": "e15-16", "source": "15", "target": "16" },
+
+    { "id": "e16-17", "source": "16", "target": "17" },
+
+    { "id": "e17-18", "source": "17", "target": "18" },
+
+    { "id": "e18-19", "source": "18", "target": "19" },
+
+    { "id": "e19-20", "source": "19", "target": "20" },
+
+    { "id": "e20-21", "source": "20", "target": "21" },
+
+    { "id": "e21-22", "source": "21", "target": "22" },
+
+    { "id": "e22-23", "source": "22", "target": "23" }
+
+  ]
+
+} 
+
