@@ -17,6 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './RFlowCanvas.css';
+import { applyLayout, LayoutType } from './graphLayout';
 
 // Node Cordinates (x,y)
 type Position = { x: number; y: number };
@@ -26,48 +27,34 @@ const p1: Position = { x: 100, y: 100 }
 const p2: Position = { x: 300, y: 200 }
 const origin: Position = { x: 0, y: 0 }
 
-// Sample nodes on load
 const initialNodes: Node[] = [
-  {
-    id: '1',
-    position: p1,
-    data: { label: 'Node 1' },
-    type: 'input',
-  },
-  {
-    id: '2',
-    position: p2,
-    data: { label: 'Node 2' },
-    type: 'output',
-  },
+  { id: '1', position: p1, data: { label: 'Node 1' } },
+  { id: '2', position: p2, data: { label: 'Node 2' } },
 ];
 
-// Sample edge connecting them
 const initialEdges: Edge[] = [
-  {
-    id: 'e1-2',
-    source: '1',
-    target: '2',
-    animated: true,
-  },
+  { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
 // Parse the model's compact text format back into ReactFlow nodes/edges.
-// Format: "id|x,y|label[|type]" lines, a "---" separator, then "source>target" lines.
+// Format: a "layout: <type>" line, "id|label[|type]" node lines, a "---"
+// separator, then "source>target" edge lines. Coordinates are computed here.
 function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
   const [nodeSection = '', edgeSection = ''] = text.split(/^---$/m);
 
-  const nodes: Node[] = nodeSection
+  const nodeLines = nodeSection
     .split('\n')
     .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [id, coords, label, type] = line.split('|');
-      const [x, y] = coords.split(',').map(Number);
-      const node: Node = { id, position: { x, y }, data: { label } };
-      if (type === 'input' || type === 'output') node.type = type;
-      return node;
-    });
+    .filter(Boolean);
+
+  const layoutMatch = nodeLines[0]?.match(/^layout:\s*(\w+)/);
+  const layout = (layoutMatch?.[1] ?? 'network') as LayoutType;
+  if (layoutMatch) nodeLines.shift();
+
+  const parsedNodes: Node[] = nodeLines.map((line) => {
+    const [id, label] = line.split('|');
+    return { id, position: { x: 0, y: 0 }, data: { label } };
+  });
 
   const edges: Edge[] = edgeSection
     .split('\n')
@@ -78,6 +65,7 @@ function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
       return { id: `e${source}-${target}`, source, target };
     });
 
+  const nodes = applyLayout(layout, parsedNodes, edges);
   return { nodes, edges };
 }
 
