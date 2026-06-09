@@ -36,9 +36,8 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-// Parse the model's compact text format back into ReactFlow nodes/edges.
-// Format: a "layout: <type>" line, "id|label[|type]" node lines, a "---"
-// separator, then "source>target" edge lines. Coordinates are computed here.
+// Parse the model's compact text format back into ReactFlow nodes/edges
+// Not going to lie this function is one of the most vibe coded parts of the app
 function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
   const [nodeSection = '', edgeSection = ''] = text.split(/^---$/m);
 
@@ -81,15 +80,14 @@ export default function InfiniteCanvas() {
   const [responseExpanded, setResponseExpanded] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
 
-
-  const handleLogState = () => {
+  function handleLogState() {
     console.log('nodes:', nodes);
     console.log(JSON.stringify(nodes, null, 2));
     console.log('edges:', edges);
     console.log(JSON.stringify(edges, null, 2));
-  };
+  }
 
-  const handleAddNode = () => {
+  function handleAddNode() {
     const id = String(nodes.length + 1);
     const node: Node = {
       id,
@@ -97,9 +95,9 @@ export default function InfiniteCanvas() {
       data: { label: `Node ${id}` },
     };
     setNodes([...nodes, node]);
-  };
+  }
 
-  const handleGenerate = async (prompt: string) => {
+  async function handleGenerate(prompt: string) {
     setLoading(true);
     const res = await fetch('/api/generate', {
       method: 'POST',
@@ -131,13 +129,13 @@ export default function InfiniteCanvas() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setInput('');
     await handleGenerate(input);
-  };
+  }
 
   return (
     <div className="canvas-wrapper">
