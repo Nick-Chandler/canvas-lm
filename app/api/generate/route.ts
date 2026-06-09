@@ -41,6 +41,10 @@ Identify the structure of the data and declare the matching layout type:
 
 When in doubt, pick the type that makes the relationships visually obvious.
 
+## Updating an existing graph
+
+When a "Current graph:" section is provided in the request, treat it as the existing diagram and modify it according to the user's request. Output the complete updated graph — not just the changed parts.
+
 Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.`;
 
 const models = {
@@ -52,12 +56,16 @@ const models = {
 const activeModel = models.deepseek; // swap to models.qwen to change model
 
 export async function POST(req: Request) {
-  const { prompt } = await req.json();
+  const { prompt, currentGraph } = await req.json();
+
+  const fullPrompt = currentGraph
+    ? `Current graph:\n${currentGraph}\n\nRequest: ${prompt}`
+    : prompt;
 
   const result = streamText({
     model: activeModel,
     system: system,
-    prompt,
+    prompt: fullPrompt,
     providerOptions: {
       openrouter: {
         reasoning: { effort: 'none', enabled: false },

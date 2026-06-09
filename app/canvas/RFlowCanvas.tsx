@@ -36,9 +36,15 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
+function graphToCompact(nodes: Node[], edges: Edge[], layout: LayoutType): string {
+  const nodeLines = nodes.map(n => `${n.id}|${n.data.label}`).join('\n');
+  const edgeLines = edges.map(e => `${e.source}>${e.target}`).join('\n');
+  return `layout: ${layout}\n${nodeLines}\n---\n${edgeLines}`;
+}
+
 // Parse the model's compact text format back into ReactFlow nodes/edges
 // Not going to lie this function is one of the most vibe coded parts of the app
-function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
+function parseCompactGraphToFull(text: string): { nodes: Node[]; edges: Edge[]; layout: LayoutType } {
   const [nodeSection = '', edgeSection = ''] = text.split(/^---$/m);
 
   const nodeLines = nodeSection
@@ -65,7 +71,7 @@ function parseGraph(text: string): { nodes: Node[]; edges: Edge[] } {
     });
 
   const nodes = applyLayout(layout, parsedNodes, edges);
-  return { nodes, edges };
+  return { nodes, edges, layout };
 }
 
 export default function InfiniteCanvas() {
@@ -79,6 +85,7 @@ export default function InfiniteCanvas() {
   const [response, setResponse] = React.useState('');
   const [responseExpanded, setResponseExpanded] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
+  const [layout, setLayout] = React.useState<LayoutType>('network');
 
   function handleLogState() {
     console.log('nodes:', nodes);
@@ -102,7 +109,10 @@ export default function InfiniteCanvas() {
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({
+        prompt,
+        currentGraph: nodes.length > 0 ? graphToCompact(nodes, edges, layout) : undefined,
+      }),
     });
     if (!res.ok) {
       setResponse(`Error: ${res.status} ${res.statusText}`);
@@ -121,9 +131,10 @@ export default function InfiniteCanvas() {
       setResponse(full);
     }
     try {
-      const { nodes: newNodes, edges: newEdges } = parseGraph(full);
+      const { nodes: newNodes, edges: newEdges, layout: newLayout } = parseCompactGraphToFull(full);
       setNodes(newNodes);
       setEdges(newEdges);
+      setLayout(newLayout);
     } catch {
       // response wasn't in the expected format — leave the canvas as-is
     } finally {
