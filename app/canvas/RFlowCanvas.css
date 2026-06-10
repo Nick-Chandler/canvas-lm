@@ -87,6 +87,7 @@
 
 .canvas-toolbar button {
   padding: 6px 12px;
+  min-width: 88px;
   border: 1px solid darkgray;
   border-radius: 6px;
   cursor: pointer;
@@ -94,7 +95,7 @@
 }
 
 .canvas-toolbar button:hover {
-  background-color: lightgray;
+  background-color: #efefef;
 }
 
 .response-box {

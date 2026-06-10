@@ -129,10 +129,10 @@ function placeRing(ids: string[], r: number, pos: Map<string, { x: number; y: nu
   });
 }
 
-// Single left-to-right line in traversal order.
+// Single top-to-bottom column in traversal order.
 function linear(nodes: Node[], edges: Edge[]): Node[] {
   const pos = new Map<string, { x: number; y: number }>();
-  traversalOrder(nodes, edges).forEach((id, i) => pos.set(id, { x: i * 400, y: 0 }));
+  traversalOrder(nodes, edges).forEach((id, i) => pos.set(id, { x: 0, y: i * 150 }));
   return applyPositions(nodes, pos);
 }
 

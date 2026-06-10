@@ -47,9 +47,7 @@ When a "Current graph:" section is provided in the request, treat it as the exis
 
 If the user asks for a new, unrelated graph, keep all existing nodes and edges and append the new graph's nodes and edges to them. Only remove existing nodes or edges when the user explicitly asks to remove or replace them.
 
-Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.
-
-/no_think`;
+Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.`;
 
 const models = {
   qwen9: openrouter('qwen/qwen3.5-9b:nitro'),

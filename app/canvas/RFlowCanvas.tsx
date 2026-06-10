@@ -23,13 +23,13 @@ import { applyLayout, LayoutType } from './graphLayout';
 type Position = { x: number; y: number };
 
 // Sample positions
-const p1: Position = { x: 100, y: 100 }
-const p2: Position = { x: 300, y: 200 }
+const p1: Position = { x: 100, y: 50 }
+const p2: Position = { x: 125, y: 200 }
 const origin: Position = { x: 0, y: 0 }
 
 const initialNodes: Node[] = [
-  { id: '1', position: p1, data: { label: 'Node 1' } },
-  { id: '2', position: p2, data: { label: 'Node 2' } },
+  { id: '1', position: p1, data: { label: 'Enter what you want to visualize' } },
+  { id: '2', position: p2, data: { label: 'Ask for changes/edits' } },
 ];
 
 const initialEdges: Edge[] = [
@@ -87,6 +87,7 @@ export default function InfiniteCanvas() {
   const [loading, setLoading] = React.useState(false);
   const [layout, setLayout] = React.useState<LayoutType>('network');
 
+  // DEBUG - logs nodes and edges to the console
   function handleLogState() {
     console.log('nodes:', nodes);
     console.log(JSON.stringify(nodes, null, 2));
@@ -153,7 +154,7 @@ export default function InfiniteCanvas() {
       <div className="canvas-toolbar">
         <button onClick={handleAddNode}>+ Add Node</button>
         <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
-        <button onClick={handleLogState}>Log State</button>
+        {/*<button onClick={handleLogState}>Log State</button>*/}
       </div>
       <div className="response-box">
         <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
