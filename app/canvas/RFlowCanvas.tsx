@@ -88,12 +88,12 @@ export default function InfiniteCanvas() {
   const [layout, setLayout] = React.useState<LayoutType>('network');
 
   // DEBUG - logs nodes and edges to the console
-  function handleLogState() {
-    console.log('nodes:', nodes);
-    console.log(JSON.stringify(nodes, null, 2));
-    console.log('edges:', edges);
-    console.log(JSON.stringify(edges, null, 2));
-  }
+  // function handleLogState() {
+  //   console.log('nodes:', nodes);
+  //   console.log(JSON.stringify(nodes, null, 2));
+  //   console.log('edges:', edges);
+  //   console.log(JSON.stringify(edges, null, 2));
+  // }
 
   function handleAddNode() {
     const id = String(nodes.length + 1);
