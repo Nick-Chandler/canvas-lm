@@ -166,7 +166,7 @@ export default function InfiniteCanvas() {
       <form onSubmit={handleSubmit}>
         <input
           className="user-input"
-          placeholder="What do you want to diagram..."
+          placeholder="What do you want to visualize..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
