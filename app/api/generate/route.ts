@@ -45,15 +45,22 @@ When in doubt, pick the type that makes the relationships visually obvious.
 
 When a "Current graph:" section is provided in the request, treat it as the existing diagram and modify it according to the user's request. Output the complete updated graph — not just the changed parts.
 
-Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.`;
+If the user asks for a new, unrelated graph, keep all existing nodes and edges and append the new graph's nodes and edges to them. Only remove existing nodes or edges when the user explicitly asks to remove or replace them.
+
+Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.
+
+/no_think`;
 
 const models = {
-  qwen: openrouter('qwen/qwen3.5-9b:nitro'),
+  qwen9: openrouter('qwen/qwen3.5-9b:nitro'),
   deepseek: openrouter('deepseek/deepseek-v4-flash:nitro'),
-  claude: openrouter('anthropic/claude-opus-4-8:nitro'),
+  sonnet: openrouter('anthropic/claude-sonnet-4-6:nitro'),
+  opus: openrouter('anthropic/claude-opus-4-8:nitro'),
+  qwen235: openrouter('qwen/qwen3-235b-a22b:nitro'),
+  kimi: openrouter('moonshotai/kimi-k2.6:nitro'),
 };
 
-const activeModel = models.deepseek; // swap to models.qwen to change model
+const activeModel = models.kimi; // swap to models.qwen to change model
 
 export async function POST(req: Request) {
   const { prompt, currentGraph } = await req.json();
