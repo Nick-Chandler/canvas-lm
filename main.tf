@@ -40,6 +40,16 @@ resource "vercel_project_environment_variable" "openrouter_api_key" {
   sensitive  = true
 }
 
-output "deployment_url" {
-  value = "https://${vercel_project.canvas_lm.name}.vercel.app"
+
+resource "vercel_project_domain" "www" {
+  project_id = vercel_project.canvas_lm.id
+  domain     = "www.canvas-lm.com"
+
+  redirect             = "canvas-lm.com"
+  redirect_status_code = 308
+}
+
+resource "vercel_project_domain" "apex" {
+  project_id = vercel_project.canvas_lm.id
+  domain     = "canvas-lm.com"
 }

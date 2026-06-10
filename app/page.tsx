@@ -1,7 +1,9 @@
-export default function Home() {
+import InfiniteCanvas from './canvas/RFlowCanvas';
+
+export default function CanvasPage() {
   return (
     <main>
-      <div>Hello world!</div>
+      <InfiniteCanvas />
     </main>
   );
 }
