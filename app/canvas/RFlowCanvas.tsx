@@ -18,6 +18,10 @@ import {
 import '@xyflow/react/dist/style.css';
 import './RFlowCanvas.css';
 import { applyLayout, LayoutType } from './graphLayout';
+import { LogState } from './_components';
+import CanvasNode from './CanvasNode';
+
+const nodeTypes = { canvasNode: CanvasNode };
 
 // Node Cordinates (x,y)
 type Position = { x: number; y: number };
@@ -28,22 +32,23 @@ const p2: Position = { x: 125, y: 200 }
 const origin: Position = { x: 0, y: 0 }
 
 const initialNodes: Node[] = [
-  { id: '1', position: p1, data: { label: 'Enter what you want to visualize' } },
-  { id: '2', position: p2, data: { label: 'Ask for changes/edits' } },
+  { id: '1', type: 'canvasNode', position: p1, data: { label: 'Enter what you want to visualize' } },
+  { id: '2', type: 'canvasNode', position: p2, data: { label: 'Ask for changes/edits' } },
 ];
 
 const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
+/// Not going to lie these two function is one of the few vibe coded parts of the app
+// 
+//  Parse the model's compact text format back into ReactFlow nodes/edges
 function graphToCompact(nodes: Node[], edges: Edge[], layout: LayoutType): string {
   const nodeLines = nodes.map(n => `${n.id}|${n.data.label}`).join('\n');
   const edgeLines = edges.map(e => `${e.source}>${e.target}`).join('\n');
   return `layout: ${layout}\n${nodeLines}\n---\n${edgeLines}`;
 }
-
 // Parse the model's compact text format back into ReactFlow nodes/edges
-// Not going to lie this function is one of the most vibe coded parts of the app
 function parseCompactGraphToFull(text: string): { nodes: Node[]; edges: Edge[]; layout: LayoutType } {
   const [nodeSection = '', edgeSection = ''] = text.split(/^---$/m);
 
@@ -58,7 +63,7 @@ function parseCompactGraphToFull(text: string): { nodes: Node[]; edges: Edge[]; 
 
   const parsedNodes: Node[] = nodeLines.map((line) => {
     const [id, label] = line.split('|');
-    return { id, position: { x: 0, y: 0 }, data: { label } };
+    return { id, type: 'canvasNode', position: { x: 0, y: 0 }, data: { label } };
   });
 
   const edges: Edge[] = edgeSection
@@ -78,27 +83,21 @@ export default function InfiniteCanvas() {
 
   // Node source of truth
   const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
-  
   // Edge source of truth
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
+  
   const [input, setInput] = React.useState('');
   const [response, setResponse] = React.useState('');
   const [responseExpanded, setResponseExpanded] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [layout, setLayout] = React.useState<LayoutType>('network');
 
-  // DEBUG - logs nodes and edges to the console
-  // function handleLogState() {
-  //   console.log('nodes:', nodes);
-  //   console.log(JSON.stringify(nodes, null, 2));
-  //   console.log('edges:', edges);
-  //   console.log(JSON.stringify(edges, null, 2));
-  // }
 
   function handleAddNode() {
     const id = String(nodes.length + 1);
     const node: Node = {
       id,
+      type: 'canvasNode',
       position: origin,
       data: { label: `Node ${id}` },
     };
@@ -154,7 +153,6 @@ export default function InfiniteCanvas() {
       <div className="canvas-toolbar">
         <button onClick={handleAddNode}>+ Add Node</button>
         <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
-        {/*<button onClick={handleLogState}>Log State</button>*/}
       </div>
       <div className="response-box">
         <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
@@ -178,7 +176,10 @@ export default function InfiniteCanvas() {
         onNodesChange={(changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes))}
         onEdgesChange={(changes: EdgeChange[]) => setEdges(applyEdgeChanges(changes, edges))}
         onConnect={(connection: Connection) => setEdges(addEdge(connection, edges))}
+        nodeTypes={nodeTypes}
+        deleteKeyCode={['Backspace', 'Delete']}
         fitView
+        proOptions={{ hideAttribution: true }}
       >
         <Background />
         <Controls />

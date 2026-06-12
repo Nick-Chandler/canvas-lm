@@ -2,7 +2,7 @@
 
 /* ── Nodes ────────────────────────────────────────────────── */
 
-.react-flow__node-default {
+.react-flow__node-canvasNode {
   background: #1c1917;
   border: 1px solid #44403c;
   border-radius: 10px;
@@ -17,7 +17,7 @@
   text-align: center;
 }
 
-.react-flow__node-default::before {
+.react-flow__node-canvasNode::before {
   content: '';
   position: absolute;
   top: 0;
@@ -28,14 +28,15 @@
   border-radius: 0 0 3px 3px;
 }
 
-.react-flow__node-default:hover {
+.react-flow__node-canvasNode:hover {
   border-color: #78716c;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(251, 191, 36, 0.18);
   transform: translateY(-2px);
 }
 
-.react-flow__node-default.selected {
+.react-flow__node-canvasNode.selected {
   border-color: #fbbf24;
+  border-width: 2px;
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.22), 0 6px 24px rgba(0, 0, 0, 0.32);
 }
 
@@ -153,6 +154,10 @@
 @media (max-width: 768px) {
   .react-flow__minimap {
     display: none;
+  }
+
+  .user-input {
+    bottom: 7%;
   }
 }
 
