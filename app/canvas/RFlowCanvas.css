@@ -92,6 +92,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  background-color: rgba(250, 250, 250, 0.7);
 }
 
 .canvas-toolbar button:hover {
@@ -144,6 +145,15 @@
   color: rgba(0, 0, 0, 0.15);
   pointer-events: none;
   user-select: none;
+}
+
+.react-flow__minimap {
+}
+
+@media (max-width: 768px) {
+  .react-flow__minimap {
+    display: none;
+  }
 }
 
 .user-input {
