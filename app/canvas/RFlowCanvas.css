@@ -51,8 +51,12 @@
   transition: transform 0.12s ease;
 }
 
-.react-flow__handle:hover {
-  transform: scale(1.4);
+.react-flow__handle-top:hover {
+  transform: translate(-50%, -50%) scale(1.4);
+}
+
+.react-flow__handle-bottom:hover {
+  transform: translate(-50%, 50%) scale(1.4);
 }
 
 /* ── Edges ────────────────────────────────────────────────── */

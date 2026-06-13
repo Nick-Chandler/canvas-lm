@@ -56,9 +56,10 @@ const models = {
   opus: openrouter('anthropic/claude-opus-4-8:nitro'),
   qwen235: openrouter('qwen/qwen3-235b-a22b:nitro'),
   kimi: openrouter('moonshotai/kimi-k2.6:nitro'),
+  gemini: openrouter('google/gemini-3.5-flash:nitro'),
 };
 
-const activeModel = models.kimi; // swap to models.qwen to change model
+const activeModel = models.gemini; // swap to models.qwen to change model
 
 export async function POST(req: Request) {
   const { prompt, currentGraph } = await req.json();
@@ -73,7 +74,8 @@ export async function POST(req: Request) {
     prompt: fullPrompt,
     providerOptions: {
       openrouter: {
-        reasoning: { effort: 'none', enabled: false },
+        reasoning: { effort: 'minimal', exclude: true },
+        plugins: [{ id: 'web', engine: 'native' }],
       },
     },
   });
