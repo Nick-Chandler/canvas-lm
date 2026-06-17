@@ -1,0 +1,175 @@
+================================================================================
+graphLayout.ts — Code & Flow Writeup
+File: app/canvas/graphLayout.ts
+================================================================================
+
+--------------------------------------------------------------------------------
+1. WHAT THIS FILE DOES (in one sentence)
+--------------------------------------------------------------------------------
+It takes a list of graph nodes and edges that have NO positions, plus a chosen
+layout style, and computes (x, y) coordinates for every node so ReactFlow can
+draw them in a sensible shape on the canvas.
+
+The key design idea: the AI model never emits coordinates. It only declares the
+*shape* it wants ("radial", "hierarchical", "linear", or "network"). This file
+is the deterministic geometry engine that turns that single word + the graph
+structure into actual positions.
+
+--------------------------------------------------------------------------------
+2. PUBLIC SURFACE (what the rest of the app imports)
+--------------------------------------------------------------------------------
+The file exports exactly two things:
+
+  • type LayoutType = 'radial' | 'hierarchical' | 'linear' | 'network'
+        The set of allowed layout shapes.
+
+  • function applyLayout(layout, nodes, edges): Node[]
+        The single entry point. Given a LayoutType and the graph, it returns a
+        NEW array of nodes — same nodes, but each with a computed `position`.
+
+Everything else in the file is a private helper or a private per-layout
+function; none of it is exported.
+
+--------------------------------------------------------------------------------
+3. EXTERNAL CONNECTIONS (code OUTSIDE this file it touches directly)
+--------------------------------------------------------------------------------
+
+A) @xyflow/react  (the ReactFlow library)
+   Line 1: `import { Node, Edge } from '@xyflow/react';`
+   This file depends on ReactFlow ONLY for the `Node` and `Edge` TypeScript
+   types. It uses no ReactFlow runtime functions — it just reads `n.id`,
+   `e.source`, `e.target`, and writes `n.position`, all of which are fields on
+   those types. So the coupling is purely type-level / structural.
+
+B) app/canvas/RFlowCanvas.tsx  (the only consumer)
+   Line 20 of RFlowCanvas.tsx: `import { applyLayout, LayoutType } from './graphLayout';`
+   This is the one and only place that imports from graphLayout.ts.
+   RFlowCanvas uses it in two ways:
+
+     1. `LayoutType` as a type — for component state and helper signatures:
+          - const [layout, setLayout] = React.useState<LayoutType>('network');
+          - graphToCompact(nodes, edges, layout: LayoutType)
+          - parseCompactGraphToFull(...): { ...; layout: LayoutType }
+
+     2. `applyLayout(...)` as a function — called once, inside
+        parseCompactGraphToFull (RFlowCanvas.tsx line 78):
+          const nodes = applyLayout(layout, parsedNodes, edges);
+        At that point `parsedNodes` all have placeholder position {x:0, y:0};
+        applyLayout replaces those with real coordinates.
+
+   graphLayout.ts has NO other importers anywhere in the codebase.
+
+C) Indirect upstream: app/api/generate/route.ts (the AI endpoint)
+   This file does NOT import graphLayout.ts, but it is the origin of the
+   `layout` value that eventually reaches applyLayout. The system prompt
+   (route.ts lines 5–50) instructs the model to emit a first line like
+   "layout: hierarchical" and explicitly says "Do NOT output any coordinates —
+   positions are computed automatically from the layout type and the edges."
+   That contract is exactly what graphLayout.ts fulfills.
+
+--------------------------------------------------------------------------------
+4. END-TO-END FLOW (how a user request reaches this file)
+--------------------------------------------------------------------------------
+
+  1. User types a prompt in InfiniteCanvas (RFlowCanvas.tsx) and submits.
+  2. handleGenerate() POSTs { prompt, currentGraph } to /api/generate.
+  3. route.ts streams back a compact text graph, e.g.:
+            layout: hierarchical
+            1|US Marine Ranks
+            2|Enlisted
+            ---
+            1>2
+  4. Back in RFlowCanvas, parseCompactGraphToFull(full) runs:
+        - reads the "layout:" line  -> layout = 'hierarchical'
+        - parses node lines         -> parsedNodes (positions all {x:0,y:0})
+        - parses edge lines         -> edges
+        - >>> calls applyLayout(layout, parsedNodes, edges) <<<   (THIS FILE)
+  5. applyLayout returns nodes WITH positions.
+  6. setNodes / setEdges / setLayout update React state.
+  7. <ReactFlow nodes={nodes} edges={edges}/> renders them at those positions.
+
+So graphLayout.ts sits between "parsed AI text" and "rendered canvas." It is the
+last transformation before the data becomes visible.
+
+--------------------------------------------------------------------------------
+5. INTERNAL STRUCTURE OF THE FILE
+--------------------------------------------------------------------------------
+
+applyLayout (lines 7–18)  — the dispatcher
+  A switch on the LayoutType:
+     'radial'       -> radial(nodes, edges)
+     'hierarchical' -> hierarchical(nodes, edges)
+     'linear'       -> linear(nodes, edges)
+     default        -> network(nodes)        // also catches 'network'
+  Note: 'network' is handled by `default`, so any unexpected value also falls
+  back to the safe grid layout.
+
+--- Shared helpers (lines 20–59) ---
+
+buildMaps(nodes, edges)  (23–35)
+  Builds two Maps keyed by node id:
+     • outgoing : id -> array of target ids (adjacency list)
+     • indegree : id -> number of incoming edges
+  Used to understand graph direction/roots. Nodes with indegree 0 are "roots".
+
+applyPositions(nodes, pos)  (38–40)
+  The final step every layout uses. Takes the computed `pos` map (id -> {x,y})
+  and returns a fresh node array where each node's `position` is set (defaulting
+  to the origin {0,0} if a node somehow has no computed position). It spreads
+  (...n) so original node data is preserved and the array is new (important for
+  React state immutability).
+
+traversalOrder(nodes, edges)  (43–59)
+  A breadth-first walk starting from all root nodes (indegree 0), following
+  outgoing edges. Returns an ordered list of ids. Any nodes never reached
+  (e.g. in a disconnected cycle) are appended at the end in their original
+  order so nothing is dropped. Used by the `linear` layout.
+
+--- The four layout algorithms (lines 61–145) ---
+
+hierarchical(nodes, edges)  (64–98)   — top-down tree
+  • Assigns each node a `level` (row) using a Kahn-style longest-path pass:
+    roots are level 0; a child's level is max(existing, parent+1). The
+    `remaining` indegree counter ensures a node is only queued once all its
+    parents are processed, so the longest path wins.
+  • Groups nodes by level (byLevel map).
+  • Within each level, spreads siblings horizontally and centers them:
+        x = (i - (count-1)/2) * 350     // 350px horizontal spacing
+        y = level * 250                 // 250px between rows
+
+radial(nodes, edges)  (101–123)   — hub in the center, peers on rings
+  • Computes total degree (in + out) per node; the highest-degree node becomes
+    the `hub`, placed at {0,0}.
+  • All other nodes go on a ring around it via placeRing.
+  • If there are >12 others, it splits them across two concentric rings
+    (radius 500 and 900) so a crowded graph doesn't overlap.
+
+placeRing(ids, r, pos)  (125–130)   — helper for radial
+  Distributes the given ids evenly around a circle of radius r using
+  angle = (2π / count) * i, then x = r·cos(angle), y = r·sin(angle).
+
+linear(nodes, edges)  (133–137)   — single vertical column
+  Uses traversalOrder to get a sensible sequence, then stacks every node in one
+  column: x = 0, y = i * 150.
+
+network(nodes)  (140–145)   — fallback square grid
+  Ignores edges entirely (no clear structure to follow). Lays nodes out in a
+  grid whose column count is ceil(sqrt(nodeCount)), spacing 400px both axes:
+        x = (i % cols) * 400
+        y = floor(i / cols) * 400
+
+--------------------------------------------------------------------------------
+6. DESIGN NOTES / THINGS WORTH KNOWING
+--------------------------------------------------------------------------------
+• Pure & deterministic: same inputs always produce the same positions. No
+  randomness, no side effects, no I/O. Easy to reason about and test.
+• Immutable output: it never mutates the input nodes; it returns new objects,
+  which fits how RFlowCanvas stores nodes in React state.
+• Edge direction matters for hierarchical/linear/radial (they read source ->
+  target), but network ignores edges completely.
+• The magic numbers (350, 250, 500, 900, 150, 400, the "12" ring threshold)
+  are spacing constants tuned for readability; they're the main knobs to tweak
+  if diagrams feel too cramped or too sparse.
+• Robustness: every Map lookup uses `?? default`, and unknown layout strings
+  fall through to the grid, so malformed model output can't crash the layout.
+================================================================================

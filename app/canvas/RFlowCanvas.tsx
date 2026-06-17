@@ -18,7 +18,7 @@ import {
 import '@xyflow/react/dist/style.css';
 import './RFlowCanvas.css';
 import { applyLayout, LayoutType } from './graphLayout';
-import { LogState } from './_components';
+// import { LogState } from './_components';
 import CanvasNode from './CanvasNode';
 
 const nodeTypes = { canvasNode: CanvasNode };

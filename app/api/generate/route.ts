@@ -47,6 +47,8 @@ When a "Current graph:" section is provided in the request, treat it as the exis
 
 If the user asks for a new, unrelated graph, keep all existing nodes and edges and append the new graph's nodes and edges to them. Only remove existing nodes or edges when the user explicitly asks to remove or replace them.
 
+If the user asks to clear, delete all, reset, or start over (or anything similar), output an empty graph: just the "layout: network" line, then the "---" line, with no node or edge lines.
+
 Output only the graph text in the format described above. No explanation, no markdown fences, no commentary.`;
 
 const models = {
@@ -59,7 +61,7 @@ const models = {
   gemini: openrouter('google/gemini-3.5-flash:nitro'),
 };
 
-const activeModel = models.gemini; // swap to models.qwen to change model
+const activeModel = models.kimi; // swap to models.qwen to change model
 
 export async function POST(req: Request) {
   const { prompt, currentGraph } = await req.json();
@@ -74,8 +76,7 @@ export async function POST(req: Request) {
     prompt: fullPrompt,
     providerOptions: {
       openrouter: {
-        reasoning: { effort: 'minimal', exclude: true },
-        plugins: [{ id: 'web', engine: 'native' }],
+        reasoning: { enabled: false },
       },
     },
   });
