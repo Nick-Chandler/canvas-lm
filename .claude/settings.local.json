@@ -1,10 +1,11 @@
 {
-  "enabledPlugins": {
-    "context7@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
-      "WebFetch(domain:openrouter.ai)"
+      "WebFetch(domain:openrouter.ai)",
+      "WebSearch"
     ]
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true
   }
 }

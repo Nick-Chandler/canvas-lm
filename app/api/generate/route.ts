@@ -61,7 +61,7 @@ const models = {
   gemini: openrouter('google/gemini-3.5-flash:nitro'),
 };
 
-const activeModel = models.kimi; // swap to models.qwen to change model
+const activeModel = models.gemini; // swap to models.qwen to change model
 
 export async function POST(req: Request) {
   const { prompt, currentGraph } = await req.json();
@@ -76,7 +76,8 @@ export async function POST(req: Request) {
     prompt: fullPrompt,
     providerOptions: {
       openrouter: {
-        reasoning: { enabled: false },
+        reasoning: { effort: 'minimal', exclude: true },
+        plugins: [{ id: 'web', engine: 'native' }],
       },
     },
   });
