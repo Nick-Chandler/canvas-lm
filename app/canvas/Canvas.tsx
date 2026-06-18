@@ -120,7 +120,7 @@ export default function InfiniteCanvas() {
         <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
       </div>
       <div className="top-right-overlay">
-        <UserButton />
+        < UserButton />
         <div className="response-box">
           <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
             <span>Response</span>
