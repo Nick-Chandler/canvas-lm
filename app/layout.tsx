@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
 import "./globals.css";
+import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { ClerkProvider } from "@clerk/nextjs";
 export const metadata: Metadata = {
   title: "Canvas LM",
@@ -18,6 +19,7 @@ export default function RootLayout({
           {children}
         </body>
       </html>
+      <SpeedInsights />
     </ClerkProvider>
   );
 }
