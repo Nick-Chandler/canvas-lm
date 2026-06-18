@@ -104,11 +104,17 @@
   background-color: #efefef;
 }
 
-.response-box {
+.top-right-overlay {
   position: absolute;
   z-index: 10;
   top: 8px;
   right: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.response-box {
   background: #1e1e1e;
   color: #d4d4d4;
   border-radius: 6px;

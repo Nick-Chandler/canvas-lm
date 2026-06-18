@@ -1,12 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
 
-export default function CanvasNode({ id, data }: NodeProps) {
+function CanvasNode({ id, data, positionAbsoluteX, positionAbsoluteY }: NodeProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const { setNodes } = useReactFlow();
+
+  useEffect(() => {
+    console.log("NODE RENDERED")
+  }, []);
+  
+  // useEffect(() => {
+  //   console.log(`Node `);
+  //   console.log(`label: ${data.label}`);
+  //   console.log(`x:`, positionAbsoluteX);
+  //   console.log(`y:`, positionAbsoluteY);
+  //   console.log('-----------------------------------')
+  // }, [data.label, positionAbsoluteX, positionAbsoluteY]);
 
   function startEdit() {
     setDraft(String(data.label));
@@ -45,3 +57,5 @@ export default function CanvasNode({ id, data }: NodeProps) {
     </>
   );
 }
+
+export default memo(CanvasNode);

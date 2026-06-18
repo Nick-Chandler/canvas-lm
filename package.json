@@ -9,6 +9,7 @@
     "lint": "bun next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.5.5",
     "@openrouter/ai-sdk-provider": "^2.9.0",
     "@xyflow/react": "^12.10.2",
     "ai": "^6.0.193",

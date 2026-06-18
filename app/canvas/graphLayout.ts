@@ -1,6 +1,6 @@
 import { Node, Edge } from '@xyflow/react';
 
-export type LayoutType = 'radial' | 'hierarchical' | 'linear' | 'network';
+export type LayoutType = 'radial' | 'hierarchical' | 'linear' | 'network' | 'mindmap';
 
 // Compute node positions from the graph structure and the chosen layout type.
 // The model no longer emits coordinates — it just declares one of these shapes.
@@ -12,6 +12,8 @@ export function applyLayout(layout: LayoutType, nodes: Node[], edges: Edge[]): N
       return hierarchical(nodes, edges);
     case 'linear':
       return linear(nodes, edges);
+    case 'mindmap':
+      return mindmap(nodes, edges);
     default:
       return network(nodes);
   }
@@ -133,6 +135,43 @@ function placeRing(ids: string[], r: number, pos: Map<string, { x: number; y: nu
 function linear(nodes: Node[], edges: Edge[]): Node[] {
   const pos = new Map<string, { x: number; y: number }>();
   traversalOrder(nodes, edges).forEach((id, i) => pos.set(id, { x: 0, y: i * 150 }));
+  return applyPositions(nodes, pos);
+}
+
+// Center node at the origin; the tree fans out in rings of increasing radius.
+// Each node owns an angular sector, splits it evenly among its children, and
+// recurses — so the layout handles arbitrary depth, not just two levels.
+function mindmap(nodes: Node[], edges: Edge[]): Node[] {
+  if (nodes.length === 0) return nodes;
+  const { outgoing, indegree } = buildMaps(nodes, edges);
+
+  // Center = a root (no incoming edges), else the first node.
+  const center = nodes.find((n) => (indegree.get(n.id) ?? 0) === 0)?.id ?? nodes[0].id;
+
+  const pos = new Map<string, { x: number; y: number }>();
+  pos.set(center, { x: 0, y: 0 });
+
+  const RING_GAP = 450; // distance between depth levels
+  const seen = new Set<string>([center]); // guard against cycles
+
+  // Place a node's children across the angular sector [start, end), then recurse.
+  function place(parentId: string, depth: number, start: number, end: number) {
+    const children = (outgoing.get(parentId) ?? []).filter((c) => !seen.has(c));
+    if (children.length === 0) return;
+    const span = (end - start) / children.length;
+    children.forEach((childId, i) => {
+      seen.add(childId);
+      const childStart = start + i * span;
+      const childEnd = childStart + span;
+      const angle = (childStart + childEnd) / 2;
+      const r = depth * RING_GAP;
+      pos.set(childId, { x: Math.round(r * Math.cos(angle)), y: Math.round(r * Math.sin(angle)) });
+      place(childId, depth + 1, childStart, childEnd);
+    });
+  }
+
+  place(center, 1, 0, 2 * Math.PI);
+
   return applyPositions(nodes, pos);
 }
 

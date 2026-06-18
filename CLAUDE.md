@@ -27,15 +27,15 @@ The app is an AI diagram generator: the user types a prompt, a model returns a g
 
 ### Canvas (root route `/`)
 
-`app/page.tsx` is the route entry point (Server Component). It renders `InfiniteCanvas` from `app/canvas/RFlowCanvas.tsx`. (There is no `app/canvas/page.tsx`; the `canvas/` folder holds the canvas component and its helpers, not a route.)
+`app/page.tsx` is the route entry point (Server Component). It renders `InfiniteCanvas` from `app/canvas/Canvas.tsx`. (There is no `app/canvas/page.tsx`; the `canvas/` folder holds the canvas component and its helpers, not a route.)
 
-`RFlowCanvas.tsx` is the main Client Component and the source of truth for `nodes`/`edges`/`layout` state. It:
+`Canvas.tsx` is the main Client Component and the source of truth for `nodes`/`edges`/`layout` state. It:
 - renders the `<ReactFlow>` graph, toolbar, prompt input, and streamed response box;
 - registers the custom node type via `nodeTypes = { canvasNode: CanvasNode }`;
 - on submit, POSTs `{ prompt, currentGraph }` to `/api/generate` and streams the response;
 - round-trips the graph through a compact text format with two local helpers: `graphToCompact()` (serialize current graph for the "Current graph:" context sent to the model) and `parseCompactGraphToFull()` (parse the model's reply back into nodes/edges, then call `applyLayout`). Malformed model output is caught and the canvas is left as-is.
 
-`graphLayout.ts` — the deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'linear' | 'network'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported only by `RFlowCanvas.tsx`. See `graphLayout.explained.txt` for a full walkthrough.
+`graphLayout.ts` — the deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'linear' | 'network' | 'mindmap'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported only by `Canvas.tsx`. See `graphLayout.explained.txt` for a full walkthrough.
 
 `CanvasNode.tsx` — the custom ReactFlow node (`type: 'canvasNode'`). Renders the label with source/target `Handle`s; double-click to edit, Enter/blur to commit (writes back via `useReactFlow().setNodes`), Escape to cancel.
 

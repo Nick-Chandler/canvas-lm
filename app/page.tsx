@@ -1,4 +1,4 @@
-import InfiniteCanvas from './canvas/RFlowCanvas';
+import InfiniteCanvas from './canvas/Canvas';
 
 export default function CanvasPage() {
   return (
