@@ -14,14 +14,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <>
+    <Analytics />
+    <SpeedInsights />
     <ClerkProvider>
       <html lang="en">
         <body>
           {children}
         </body>
       </html>
-      <SpeedInsights />
-      <Analytics />
     </ClerkProvider>
+    </>
   );
 }
