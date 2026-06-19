@@ -42,7 +42,7 @@ The app is an AI diagram generator: the user types a prompt, a model returns a g
 - on submit, POSTs `{ prompt, currentGraph }` to `/api/generate` and streams the response;
 - round-trips the graph through a compact text format with two local helpers: `graphToCompact()` (serialize current graph for the "Current graph:" context sent to the model) and `parseCompactGraphToFull()` (parse the model's reply back into nodes/edges, then call `applyLayout`). Malformed model output is caught and the canvas is left as-is.
 
-`graphLayout.ts` — the deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'linear' | 'network' | 'mindmap'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported only by `Canvas.tsx`. See `graphLayout.explained.txt` for a full walkthrough.
+`graphLayout.ts` — the deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'flowchart' | 'network' | 'mindmap'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported only by `Canvas.tsx`. See `graphLayout.explained.txt` for a full walkthrough.
 
 `CanvasNode.tsx` — the custom ReactFlow node (`type: 'canvasNode'`). Renders the label with source/target `Handle`s; double-click to edit, Enter/blur to commit (writes back via `useReactFlow().setNodes`), Escape to cancel.
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Link from 'next/link';
 import { UserButton, Show } from '@clerk/nextjs'
 import {
   ReactFlow,
@@ -120,8 +121,11 @@ export default function InfiniteCanvas() {
         <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
       </div>
       <div className="top-right-overlay">
-        <Show when='signed-in'><UserButton /></Show>
-        <Show when='signed-out'><a href="/auth" className="sign-in-btn">Sign in</a></Show>
+        <Show when='signed-in'>
+          <select className="canvas-dropdown" />
+          <UserButton />
+        </Show>
+        <Show when='signed-out'><Link href="/auth" className="sign-in-btn">Sign in</Link></Show>
         <div className="response-box">
           <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
             <span>Response</span>

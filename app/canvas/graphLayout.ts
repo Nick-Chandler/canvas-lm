@@ -1,6 +1,6 @@
 import { Node, Edge } from '@xyflow/react';
 
-export type LayoutType = 'radial' | 'hierarchical' | 'linear' | 'network' | 'mindmap';
+export type LayoutType = 'radial' | 'hierarchical' | 'flowchart' | 'network' | 'mindmap';
 
 // Compute node positions from the graph structure and the chosen layout type.
 // The model no longer emits coordinates — it just declares one of these shapes.
@@ -10,8 +10,8 @@ export function applyLayout(layout: LayoutType, nodes: Node[], edges: Edge[]): N
       return radial(nodes, edges);
     case 'hierarchical':
       return hierarchical(nodes, edges);
-    case 'linear':
-      return linear(nodes, edges);
+    case 'flowchart':
+      return flowchart(nodes, edges);
     case 'mindmap':
       return mindmap(nodes, edges);
     default:
@@ -39,25 +39,6 @@ function buildMaps(nodes: Node[], edges: Edge[]) {
 // Apply a computed id -> position map, defaulting to the origin.
 function applyPositions(nodes: Node[], pos: Map<string, { x: number; y: number }>): Node[] {
   return nodes.map((n) => ({ ...n, position: pos.get(n.id) ?? { x: 0, y: 0 } }));
-}
-
-// Visit order following edges from the roots, then any unvisited nodes in order.
-function traversalOrder(nodes: Node[], edges: Edge[]): string[] {
-  const { outgoing, indegree } = buildMaps(nodes, edges);
-  const visited = new Set<string>();
-  const order: string[] = [];
-  const queue = nodes.filter((n) => (indegree.get(n.id) ?? 0) === 0).map((n) => n.id);
-  while (queue.length) {
-    const id = queue.shift()!;
-    if (visited.has(id)) continue;
-    visited.add(id);
-    order.push(id);
-    for (const child of outgoing.get(id) ?? []) if (!visited.has(child)) queue.push(child);
-  }
-  nodes.forEach((n) => {
-    if (!visited.has(n.id)) order.push(n.id);
-  });
-  return order;
 }
 
 // --- layouts ---
@@ -99,6 +80,34 @@ function hierarchical(nodes: Node[], edges: Edge[]): Node[] {
   return applyPositions(nodes, pos);
 }
 
+// Top-down process flow. A post-order walk from the roots: leaves claim the
+// next x slot left-to-right, and every parent is centred over the children it
+// owns. So a single chain stays vertical while a decision that forks into
+// distinct paths fans them out. Edges back to an already-placed node (branches
+// that rejoin) keep their connection but don't move anything.
+function flowchart(nodes: Node[], edges: Edge[]): Node[] {
+  const { outgoing, indegree } = buildMaps(nodes, edges);
+  const pos = new Map<string, { x: number; y: number }>();
+  const seen = new Set<string>();
+  let nextX = 0;
+
+  const place = (id: string, depth: number): number => {
+    seen.add(id);
+    const kids = (outgoing.get(id) ?? []).filter((k) => !seen.has(k));
+    const x = kids.length
+      ? kids.reduce((sum, k) => sum + place(k, depth + 1), 0) / kids.length
+      : (nextX += 350) - 350;
+    pos.set(id, { x, y: depth * 250 });
+    return x;
+  };
+
+  // Start from the roots (no incoming edges), then anything left over (cycles).
+  nodes.filter((n) => (indegree.get(n.id) ?? 0) === 0).forEach((n) => place(n.id, 0));
+  nodes.forEach((n) => { if (!seen.has(n.id)) place(n.id, 0); });
+
+  return applyPositions(nodes, pos);
+}
+
 // Hub (highest-degree node) at the center, peers spread evenly on a ring.
 function radial(nodes: Node[], edges: Edge[]): Node[] {
   if (nodes.length === 0) return nodes;
@@ -129,13 +138,6 @@ function placeRing(ids: string[], r: number, pos: Map<string, { x: number; y: nu
     const angle = (2 * Math.PI / ids.length) * i;
     pos.set(id, { x: Math.round(r * Math.cos(angle)), y: Math.round(r * Math.sin(angle)) });
   });
-}
-
-// Single top-to-bottom column in traversal order.
-function linear(nodes: Node[], edges: Edge[]): Node[] {
-  const pos = new Map<string, { x: number; y: number }>();
-  traversalOrder(nodes, edges).forEach((id, i) => pos.set(id, { x: 0, y: i * 150 }));
-  return applyPositions(nodes, pos);
 }
 
 // Center node at the origin; the tree fans out in rings of increasing radius.
