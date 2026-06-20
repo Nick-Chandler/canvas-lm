@@ -22,9 +22,6 @@ Required env vars (`.env.local` locally, Vercel dashboard in production):
 | Variable | Purpose |
 |---|---|
 | `OPENROUTER_API_KEY` | AI model calls via `/api/generate` |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk auth (public, safe to expose) |
-| `CLERK_SECRET_KEY` | Clerk auth (server-side only) |
-| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | Set to `/auth` so Clerk redirects to the in-app sign-in page instead of `accounts.dev` |
 
 ## Architecture
 
@@ -55,14 +52,6 @@ The app is an AI diagram generator: the user types a prompt, a model returns a g
 A long `system` prompt defines the compact graph text contract the client parses: a `layout: <type>` line, then `id|label` node lines, then a `---` separator, then `source>target` edge lines — and explicitly forbids coordinates. When `currentGraph` is present the prompt instructs the model to update/extend the existing diagram.
 
 The active model is selected by `const activeModel = models.<key>` from a `models` map (currently `gemini` → `google/gemini-3.5-flash:nitro`); swap the key to change models. The compact-text format keeps responses small/fast across models.
-
-### Auth (Clerk)
-
-`ClerkProvider` wraps the root layout in `app/layout.tsx`. The sign-in page lives at `app/auth/[[...sign-in]]/page.tsx` (the catch-all slug is required by Clerk).
-
-Route protection is handled in `proxy.ts` at the project root (Next.js 16 renamed Middleware to Proxy — same functionality, new filename). It uses `clerkMiddleware` + `createRouteMatcher` to call `auth.protect()` on all routes except `/auth`.
-
-To add route protection, create `middleware.ts` at the project root using `clerkMiddleware` from `@clerk/nextjs/server` and define a `matcher` config. See the Clerk Next.js docs.
 
 ### ReactFlow docs
 
