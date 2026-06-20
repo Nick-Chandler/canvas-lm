@@ -40,7 +40,8 @@ The app is an AI diagram generator: the user types a prompt, a model returns a g
 - renders the `<ReactFlow>` graph, toolbar, prompt input, and streamed response box;
 - registers the custom node type via `nodeTypes = { canvasNode: CanvasNode }`;
 - on submit, POSTs `{ prompt, currentGraph }` to `/api/generate` and streams the response;
-- round-trips the graph through a compact text format with two local helpers: `graphToCompact()` (serialize current graph for the "Current graph:" context sent to the model) and `parseCompactGraphToFull()` (parse the model's reply back into nodes/edges, then call `applyLayout`). Malformed model output is caught and the canvas is left as-is.
+- round-trips the graph through a compact text format using `graphToCompact()` and `parseCompactGraphToFull()` from `app/lib/compactGraph.ts`. Malformed model output is caught and the canvas is left as-is.
+- persists the graph to `localStorage` (saves on node drag stop, loads on mount). A `showingExamples` boolean tracks whether the initial placeholder nodes are showing; the first generate or manual add clears them.
 
 `graphLayout.ts` — the deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'flowchart' | 'network' | 'mindmap'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported only by `Canvas.tsx`. See `graphLayout.explained.txt` for a full walkthrough.
 
@@ -52,7 +53,7 @@ The app is an AI diagram generator: the user types a prompt, a model returns a g
 
 `app/api/generate/route.ts` — POST endpoint. Accepts `{ prompt, currentGraph? }`, calls OpenRouter via the Vercel AI SDK (`streamText`), and returns a **streamed plain-text** response (`toTextStreamResponse()`).
 
-A long `system` prompt defines the compact graph text contract the client parses: a `layout: <type>` line, then `id|label` node lines, then a `---` separator, then `source>target` edge lines — and explicitly forbids coordinates. When `currentGraph` is present the prompt instructs the model to update/extend the existing diagram.
+The system prompt lives in `app/api/generate/systems/systemPrompt.ts`. It defines the compact graph text contract the client parses: a `layout: <type>` line, then `id|label` node lines, then a `---` separator, then `source>target` edge lines — and explicitly forbids coordinates. When `currentGraph` is present the prompt instructs the model to update/extend the existing diagram.
 
 The active model is selected by `const activeModel = models.<key>` from a `models` map (currently `gemini` → `google/gemini-3.5-flash:nitro`); swap the key to change models. The compact-text format keeps responses small/fast across models.
 

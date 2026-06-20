@@ -3,7 +3,7 @@
 import { memo, useState, useEffect } from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
 
-function CanvasNode({ id, data, positionAbsoluteX, positionAbsoluteY }: NodeProps) {
+function CanvasNode({ id, data }: NodeProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const { setNodes } = useReactFlow();
@@ -11,14 +11,6 @@ function CanvasNode({ id, data, positionAbsoluteX, positionAbsoluteY }: NodeProp
   useEffect(() => {
     console.log("NODE RENDERED")
   }, []);
-  
-  // useEffect(() => {
-  //   console.log(`Node `);
-  //   console.log(`label: ${data.label}`);
-  //   console.log(`x:`, positionAbsoluteX);
-  //   console.log(`y:`, positionAbsoluteY);
-  //   console.log('-----------------------------------')
-  // }, [data.label, positionAbsoluteX, positionAbsoluteY]);
 
   function startEdit() {
     setDraft(String(data.label));

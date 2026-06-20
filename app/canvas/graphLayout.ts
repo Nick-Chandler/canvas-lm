@@ -1,9 +1,8 @@
 import { Node, Edge } from '@xyflow/react';
 
-export type LayoutType = 'radial' | 'hierarchical' | 'flowchart' | 'network' | 'mindmap';
+export type LayoutType = 'flowchart' | 'hierarchical' | 'mindmap' | 'network' | 'radial';
 
 // Compute node positions from the graph structure and the chosen layout type.
-// The model no longer emits coordinates — it just declares one of these shapes.
 export function applyLayout(layout: LayoutType, nodes: Node[], edges: Edge[]): Node[] {
   switch (layout) {
     case 'radial':
@@ -38,7 +37,10 @@ function buildMaps(nodes: Node[], edges: Edge[]) {
 
 // Apply a computed id -> position map, defaulting to the origin.
 function applyPositions(nodes: Node[], pos: Map<string, { x: number; y: number }>): Node[] {
-  return nodes.map((n) => ({ ...n, position: pos.get(n.id) ?? { x: 0, y: 0 } }));
+  return nodes.map((n) => {
+    const position = pos.get(n.id) ?? { x: 0, y: 0 };
+    return { ...n, position };
+  });
 }
 
 // --- layouts ---
@@ -181,6 +183,10 @@ function mindmap(nodes: Node[], edges: Edge[]): Node[] {
 function network(nodes: Node[]): Node[] {
   const cols = Math.max(1, Math.ceil(Math.sqrt(nodes.length)));
   const pos = new Map<string, { x: number; y: number }>();
-  nodes.forEach((n, i) => pos.set(n.id, { x: (i % cols) * 400, y: Math.floor(i / cols) * 400 }));
+  nodes.forEach((n, i) => {
+    const x = (i % cols) * 400;
+    const y = Math.floor(i / cols) * 400;
+    pos.set(n.id, { x, y });
+  });
   return applyPositions(nodes, pos);
 }
