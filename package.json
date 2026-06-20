@@ -6,7 +6,7 @@
     "dev": "bun --bun next dev",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
-    "lint": "bun next lint"
+    "lint": "bun --bun eslint ."
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

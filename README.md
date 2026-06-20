@@ -1,34 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Canvas LM
+By Nicholas Chandler
 
-## Getting Started
+## An AI-Native diagramming tool that let's you easily create and edit diagrams using natural language prompts
 
-First, run the development server:
+# Why create this
+- The simple answer is I wanted a tool just like this to help me visualize concepts, specifically one that I could iteratively edit by prompting. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- The closest I could find was Whimsical.com but it does not support iterative edits by prompting (also the whole AI integration feels a bit stiff in my opinion)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- I wanted something that felt intutive that I could go back and forth with
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Learn More
+# Tech Stack
+- Typescript
+- Next.js + React
+- Vercel AI SDK
+- Vercel Neon (Database/Auth)
+- OpenRouter (Inference router)
+- Google Gemini Flash 3.5 + Kimi K2.6 (Models)
+- Vercel (deployment)
+- Terraform (IaC)
 
-To learn more about Next.js, take a look at the following resources:
+# Features
+- Edit existing diagrams with prompts (e.g. "Remove the western conference teams from the NBA teams diagram")
+- Request a diagram type in natural language or let the model decide
+- Manual node placement/editing
+- Sign in and save your workspaces
+- Model selection (fastest/smartest) - COMING SOON
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Diagram Types
+- Flowchart - Branching logic
+- Hierarchical - Top down hierarchical structure
+- Radial - Hub and spoke 
+- Mindmap - Multi-level web diagram
+- Network - Many-to-many relationship modeling (Also the fallback)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Planned Updates - roughly in order of priority
 
-## Deploy on Vercel
+High Priority
+----------------
+- Model selection (fastest/smartest) - ON DECK
+- Instructions button (renders instructions as nodes)
+- New elements to add to canvas (icons, shapes, textboxes, etc.) 
+- Node "Handle" cleanup
+- Node + Edge customization
+- Themes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Lower Priority
+---------------
+- Mobile UI
+- Workspace sharing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Brainstorms
+---------------
+- Cartesian cordinate graph for math equations
+- Graphs & Charts (Bar graph, Pie Chart, Line Graph, Scatterplot, etc.)
+- Side conversations (similar to /btw in Claude Code)
+- File Upload
+- Image Upload
+
+# Known Limitations/Bugs - roughly in order of severity
+- Auth setup incomplete (cannot save diagrams yet) - IN PROGRESS
+- Does not yet support multiple diagrams
