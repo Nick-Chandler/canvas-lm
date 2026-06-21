@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     model: activeModel,
     system: system,
     prompt: fullPrompt,
+    maxOutputTokens: 5000,
     providerOptions: {
       openrouter: {
         reasoning: { effort: 'minimal', exclude: true },
