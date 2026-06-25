@@ -108,7 +108,11 @@ export default function InfiniteCanvas() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setInput('');
-    if (showingExamples) { setNodes([]); setEdges([]); setShowingExamples(false); }
+    if (showingExamples) {
+      setNodes([]);
+      setEdges([]);
+      setShowingExamples(false);
+    }
     await handleGenerate(input);
   }
 
