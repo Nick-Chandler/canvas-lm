@@ -6,11 +6,12 @@
     "dev": "bun --bun next dev",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
-    "lint": "bun --bun eslint ."
+    "lint": "eslint"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@openrouter/ai-sdk-provider": "^2.9.0",
+    "@clerk/nextjs": "^7.5.5",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@xyflow/react": "^12.10.2",

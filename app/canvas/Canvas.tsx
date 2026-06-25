@@ -20,6 +20,7 @@ import './Canvas.css';
 import { LayoutType } from './graphLayout';
 import CanvasNode from './CanvasNode';
 import { graphToCompact, parseCompactGraphToFull } from '@/app/lib/compactGraph';
+import { UserButton, SignInButton, useAuth } from '@clerk/nextjs';
 
 const nodeTypes = { canvasNode: CanvasNode };
 
@@ -33,6 +34,7 @@ const initialEdges: Edge[] = [
 ];
 
 export default function InfiniteCanvas() {
+  const { isSignedIn } = useAuth();
   const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
   const [input, setInput] = React.useState('');
@@ -108,7 +110,11 @@ export default function InfiniteCanvas() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setInput('');
-    if (showingExamples) { setNodes([]); setEdges([]); setShowingExamples(false); }
+    if (showingExamples) {
+      setNodes([]);
+      setEdges([]);
+      setShowingExamples(false);
+    }
     await handleGenerate(input);
   }
 
@@ -119,6 +125,15 @@ export default function InfiniteCanvas() {
         <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
       </div>
       <div className="top-right-overlay">
+        <div className="auth-control">
+          {isSignedIn ? (
+            <UserButton />
+          ) : (
+            <SignInButton mode="redirect">
+              <button className="sign-in-btn">Sign In</button>
+            </SignInButton>
+          )}
+        </div>
         <div className="response-box">
           <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
             <span>Response</span>

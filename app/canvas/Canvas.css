@@ -114,6 +114,29 @@
   gap: 8px;
 }
 
+.auth-control {
+  display: flex;
+  align-items: center;
+}
+
+.sign-in-btn {
+  padding: 6px 14px;
+  border: 1px solid #44403c;
+  border-radius: 6px;
+  background: #1c1917;
+  color: #fafaf7;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.sign-in-btn:hover {
+  background: #292524;
+  border-color: #78716c;
+}
+
 .response-box {
   background: #1e1e1e;
   color: #d4d4d4;
@@ -158,8 +181,7 @@
   user-select: none;
 }
 
-.react-flow__minimap {
-}
+
 
 @media (max-width: 768px) {
   .react-flow__minimap {
