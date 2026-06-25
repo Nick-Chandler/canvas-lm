@@ -14,13 +14,13 @@ export default function RootLayout({
 }>) {
   return (
     <>
-    <Analytics />
-    <SpeedInsights />
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
+      <html lang="en">
+        <Analytics />
+        <SpeedInsights />
+        <body>
+          {children}
+        </body>
+      </html>
     </>
   );
 }

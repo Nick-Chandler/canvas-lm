@@ -3,7 +3,7 @@
 import { memo, useState, useEffect } from 'react';
 import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
 
-function CanvasNode({ id, data, positionAbsoluteX, positionAbsoluteY }: NodeProps) {
+function CanvasNode({ id, data }: NodeProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const { setNodes } = useReactFlow();
