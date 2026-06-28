@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model UserWorkspace {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String
+  data       Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt @default(now())
+
+  @@map("user_workspaces")
+}
