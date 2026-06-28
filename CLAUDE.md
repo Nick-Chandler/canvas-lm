@@ -81,6 +81,14 @@ Fetch https://sdk.vercel.ai/llms.txt for up-to-date Vercel AI SDK documentation 
 - DeepSeek model parameters: https://api-docs.deepseek.com
 - Qwen model list and parameters: https://openrouter.ai/models?q=qwen
 
+## Database
+
+The app uses [Prisma](https://www.prisma.io) (ORM) with PostgreSQL. The schema lives in `prisma/schema.prisma`, and `app/lib/db.ts` exposes a singleton `getDb(): PrismaClient` (created via the `@prisma/adapter-neon` driver adapter, connecting through `DATABASE_URL`).
+
+The single table in use is `user_workspaces`, mapped from the `UserWorkspace` model (`@@map("user_workspaces")` in the schema). It stores one row per user with their canvas graph packed as JSON in the `data` column. The generated Prisma type is importable as `import type { UserWorkspace } from "@prisma/client"`.
+
+> **Prisma is on v7** (`@prisma/client` / `prisma` both `^7.8.0`). v7 has **breaking changes** vs. v5/v6 — APIs, generator output, and driver-adapter signatures may differ from your training data. Before assuming a Prisma API shape, check the generated client in `node_modules/.prisma/client/index.d.ts` and the adapter types in `node_modules/@prisma/adapter-neon/dist/index.d.ts`. For example, `PrismaNeon` takes a `PoolConfig` object, not a `Pool` instance. After any schema change, run `bunx prisma generate` to refresh types.
+
 ## Styling
 
 Put all styles in `.css` files. Avoid inline styles.
