@@ -43,6 +43,7 @@ export default function InfiniteCanvas() {
   const [loading, setLoading] = React.useState(false);
   const [layout, setLayout] = React.useState<LayoutType>('network');
   const [showingExamples, setShowingExamples] = React.useState(true);
+  const [saveable, setSaveable] = React.useState(true)
 
   function handleAddNode() {
     const base = showingExamples ? [] : nodes;
@@ -62,12 +63,11 @@ export default function InfiniteCanvas() {
     setShowingExamples(false);
   }, []);
 
-  function saveGraph() {
-    if (showingExamples) return;
+  useEffect(() => {
+    if (showingExamples || !saveable) return;
     localStorage.setItem('nodes', JSON.stringify(nodes));
     localStorage.setItem('edges', JSON.stringify(edges));
-    console.log('Graph saved to localStorage');
-  }
+  }, [nodes, edges, showingExamples, saveable]);
 
   async function handleGenerate(prompt: string) {
     setLoading(true);
@@ -156,7 +156,8 @@ export default function InfiniteCanvas() {
         edges={edges}
         onNodesChange={(changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes))}
         onEdgesChange={(changes: EdgeChange[]) => setEdges(applyEdgeChanges(changes, edges))}
-        onNodeDragStop={saveGraph}
+        onNodeDragStart={()=> setSaveable(false)}
+        onNodeDragStop={() => setSaveable(true)}
         onConnect={(connection: Connection) => setEdges(addEdge(connection, edges))}
         nodeTypes={nodeTypes}
         deleteKeyCode={['Backspace', 'Delete']}
