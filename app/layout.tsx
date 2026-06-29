@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { ClerkProvider } from "@clerk/nextjs";
 export const metadata: Metadata = {
   title: "Canvas LM",
-  description: "A Canvas App",
+  description: "A Canvas App for Diagramming",
 };
 
 export default function RootLayout({
