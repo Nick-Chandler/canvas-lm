@@ -129,7 +129,7 @@ export default function InfiniteCanvas() {
           {isSignedIn ? (
             <UserButton />
           ) : (
-            <SignInButton mode="redirect">
+            <SignInButton mode="modal">
               <button className="sign-in-btn">Sign In</button>
             </SignInButton>
           )}
