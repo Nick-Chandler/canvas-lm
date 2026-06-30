@@ -6,7 +6,8 @@
 - `compactGraph.ts` — **Lives here, not in `app/canvas/`.** The bidirectional serializer between the ReactFlow graph and the compact text format:
   - `graphToCompact(nodes, edges, layout)` → compact text for model context;
   - `parseCompactGraphToFull(text)` → nodes/edges, then positioned via `applyLayout`.
-  - Imports `applyLayout` / `LayoutType` from `@/app/canvas/graphLayout` (so `lib` → `canvas`, one-directional).
+  - Imports `applyLayout` / `LayoutType` from `./graphLayout`.
+- `graphLayout.ts` — The deterministic geometry engine. `applyLayout(layout, nodes, edges)` takes position-less nodes plus a `LayoutType` (`'radial' | 'hierarchical' | 'flowchart' | 'network' | 'mindmap'`) and returns nodes with computed `(x, y)` positions. Pure, no side effects. Imported by `app/canvas/Canvas.tsx` via `@/app/lib/graphLayout`. See companion `graphLayout.explained.txt` for a full walkthrough.
 
 ## Database
 

@@ -17,7 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './Canvas.css';
-import { LayoutType } from './graphLayout';
+import { LayoutType } from '@/app/lib/graphLayout';
 import CanvasNode from './CanvasNode';
 import { graphToCompact, parseCompactGraphToFull } from '@/app/lib/compactGraph';
 import { UserButton, SignInButton, useAuth } from '@clerk/nextjs';
@@ -63,10 +63,15 @@ export default function InfiniteCanvas() {
     setShowingExamples(false);
   }, []);
 
-  useEffect(() => {
-    if (showingExamples || !saveable) return;
+  function saveGraph() {
     localStorage.setItem('nodes', JSON.stringify(nodes));
     localStorage.setItem('edges', JSON.stringify(edges));
+  }
+
+  useEffect(() => {
+    if (showingExamples || !saveable) return;
+    saveGraph();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, edges, showingExamples, saveable]);
 
   async function handleGenerate(prompt: string) {

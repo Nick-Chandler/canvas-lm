@@ -36,8 +36,8 @@ Next.js 16 App Router project. It's an AI diagram generator: the user types a pr
 |---|---|---|
 | `app/` | App Router shell, Clerk/Analytics providers, auth-gated pages | `app/CLAUDE.md` |
 | `app/api/` | Model calls (OpenRouter via Vercel AI SDK) + the compact-text contract | `app/api/CLAUDE.md` |
-| `app/canvas/` | Client ReactFlow UI + the deterministic layout engine | `app/canvas/CLAUDE.md` |
-| `app/lib/` | Shared infra: Prisma/Neon DB + graph serialization | `app/lib/CLAUDE.md` |
+| `app/canvas/` | Client ReactFlow UI | `app/canvas/CLAUDE.md` |
+| `app/lib/` | Shared infra: Prisma/Neon DB, graph serialization, and the deterministic layout engine | `app/lib/CLAUDE.md` |
 
 ## Conventions
 

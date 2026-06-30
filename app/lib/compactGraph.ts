@@ -1,5 +1,5 @@
 import { Node, Edge } from '@xyflow/react';
-import { applyLayout, LayoutType } from '@/app/canvas/graphLayout';
+import { applyLayout, LayoutType } from './graphLayout';
 
 // Serializes the current graph into the compact text format sent to the model as context
 export function graphToCompact(nodes: Node[], edges: Edge[], layout: LayoutType): string {
