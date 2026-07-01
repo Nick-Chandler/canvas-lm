@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   ReactFlow,
   Background,
@@ -19,8 +19,13 @@ import '@xyflow/react/dist/style.css';
 import './Canvas.css';
 import { LayoutType } from '@/app/lib/graphLayout';
 import CanvasNode from './CanvasNode';
-import { graphToCompact, parseCompactGraphToFull } from '@/app/lib/compactGraph';
-import { UserButton, SignInButton, useAuth } from '@clerk/nextjs';
+import { useGraphPersistence } from './hooks/useGraphPersistence';
+import { useGenerateGraph } from './hooks/useGenerateGraph';
+import { useGraphActions } from './hooks/useGraphActions';
+import Toolbar from './components/Toolbar';
+import AuthControl from './components/AuthControl';
+import ResponseBox from './components/ResponseBox';
+import PromptInput from './components/PromptInput';
 
 const nodeTypes = { canvasNode: CanvasNode };
 
@@ -34,134 +39,47 @@ const initialEdges: Edge[] = [
 ];
 
 export default function InfiniteCanvas() {
-  const { isSignedIn } = useAuth();
   const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
-  const [input, setInput] = React.useState('');
-  const [response, setResponse] = React.useState('');
-  const [responseExpanded, setResponseExpanded] = React.useState(true);
-  const [loading, setLoading] = React.useState(false);
   const [layout, setLayout] = React.useState<LayoutType>('network');
   const [showingExamples, setShowingExamples] = React.useState(true);
-  const [saveable, setSaveable] = React.useState(true)
 
-  function handleAddNode() {
-    const base = showingExamples ? [] : nodes;
-    const id = String(base.length + 1);
-    const node: Node = { id, type: 'canvasNode', position: { x: 0, y: 0 }, data: { label: `Node ${id}` } };
-    setNodes([...base, node]);
-    if (showingExamples) { setEdges([]); setShowingExamples(false); }
-  }
+  const { setSaveable } = useGraphPersistence({
+    nodes, edges, showingExamples, setNodes, setEdges, setShowingExamples,
+  });
 
-  useEffect(() => {
-    const savedNodes = localStorage.getItem('nodes');
-    const savedEdges = localStorage.getItem('edges');
-    if (!savedNodes || !savedEdges) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setNodes(JSON.parse(savedNodes));
-    setEdges(JSON.parse(savedEdges));
-    setShowingExamples(false);
-  }, []);
+  const { response, setResponse, loading, generate } = useGenerateGraph({
+    nodes, edges, layout, showingExamples, setNodes, setEdges, setLayout,
+  });
 
-  function saveGraph() {
-    localStorage.setItem('nodes', JSON.stringify(nodes));
-    localStorage.setItem('edges', JSON.stringify(edges));
-  }
+  const { addNode, clear } = useGraphActions({
+    nodes, showingExamples, setNodes, setEdges, setShowingExamples, setResponse,
+  });
 
-  useEffect(() => {
-    if (showingExamples || !saveable) return;
-    saveGraph();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, edges, showingExamples, saveable]);
-
-  async function handleGenerate(prompt: string) {
-    setLoading(true);
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt,
-        currentGraph: !showingExamples && nodes.length > 0 ? graphToCompact(nodes, edges, layout) : undefined,
-      }),
-    });
-    if (!res.ok) {
-      setResponse(`Error: ${res.status} ${res.statusText}`);
-      setLoading(false);
-      return;
-    }
-    setResponse('');
-    const reader = res.body!.getReader();
-    const decoder = new TextDecoder();
-    let full = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value);
-      full += chunk;
-      setResponse(full);
-    }
-    try {
-      const { nodes: newNodes, edges: newEdges, layout: newLayout } = parseCompactGraphToFull(full);
-      setNodes(newNodes);
-      setEdges(newEdges);
-      setLayout(newLayout);
-    } catch {
-      // response wasn't in the expected format — leave the canvas as-is
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setInput('');
+  async function handleSubmit(value: string) {
     if (showingExamples) {
       setNodes([]);
       setEdges([]);
       setShowingExamples(false);
     }
-    await handleGenerate(input);
+    await generate(value);
   }
 
   return (
     <div className="canvas-wrapper">
-      <div className="canvas-toolbar">
-        <button onClick={handleAddNode}>+ Add Node</button>
-        <button onClick={() => { setNodes([]); setEdges([]); setResponse(''); }}>Clear</button>
-      </div>
+      <Toolbar onAddNode={addNode} onClear={clear} />
       <div className="top-right-overlay">
-        <div className="auth-control">
-          {isSignedIn ? (
-            <UserButton />
-          ) : (
-            <SignInButton mode="modal">
-              <button className="sign-in-btn">Sign In</button>
-            </SignInButton>
-          )}
-        </div>
-        <div className="response-box">
-          <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
-            <span>Response</span>
-            <span>{responseExpanded ? '▲' : '▼'}</span>
-          </div>
-          {responseExpanded && <pre className="response-box-content">{response}</pre>}
-        </div>
+        <AuthControl />
+        <ResponseBox response={response} />
       </div>
       {loading && <div className="loading-watermark">Generating diagram...</div>}
-      <form onSubmit={handleSubmit}>
-        <input
-          className="user-input"
-          placeholder="What do you want to visualize..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-      </form>
+      <PromptInput onSubmitAction={handleSubmit} />
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={(changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes))}
         onEdgesChange={(changes: EdgeChange[]) => setEdges(applyEdgeChanges(changes, edges))}
-        onNodeDragStart={()=> setSaveable(false)}
+        onNodeDragStart={() => setSaveable(false)}
         onNodeDragStop={() => setSaveable(true)}
         onConnect={(connection: Connection) => setEdges(addEdge(connection, edges))}
         nodeTypes={nodeTypes}
