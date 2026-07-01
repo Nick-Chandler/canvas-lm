@@ -9,7 +9,7 @@ function CanvasNode({ id, data }: NodeProps) {
   const { setNodes } = useReactFlow();
 
   useEffect(() => {
-    console.log("NODE RENDERED")
+    // console.log("NODE RENDERED")
   }, []);
 
   function startEdit() {

@@ -1,0 +1,9 @@
+layout: flowchart
+1|Start
+2|Is it raining?
+3|Take umbrella
+4|Leave
+---
+1>2
+2>3:Yes
+2>4:No

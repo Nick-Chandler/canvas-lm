@@ -18,8 +18,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import './Canvas.css';
 import { LayoutType } from '@/app/lib/graphLayout';
+import type { PackagedData } from '@/app/lib/db';
 import CanvasNode from './CanvasNode';
-import { useGraphPersistence } from './hooks/useGraphPersistence';
 import { useGenerateGraph } from './hooks/useGenerateGraph';
 import { useGraphActions } from './hooks/useGraphActions';
 import Toolbar from './components/Toolbar';
@@ -38,15 +38,13 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-export default function InfiniteCanvas() {
-  const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
-  const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
-  const [layout, setLayout] = React.useState<LayoutType>('network');
-  const [showingExamples, setShowingExamples] = React.useState(true);
+export default function InfiniteCanvas({ data }: { data?: PackagedData | null }) {
+  const [nodes, setNodes] = React.useState<Node[]>(data?.nodes ?? initialNodes);
+  const [edges, setEdges] = React.useState<Edge[]>(data?.edges ?? initialEdges);
+  const [layout, setLayout] = React.useState<LayoutType>(data?.layout ?? 'network');
+  const [showingExamples, setShowingExamples] = React.useState(data == null);
 
-  const { setSaveable } = useGraphPersistence({
-    nodes, edges, showingExamples, setNodes, setEdges, setShowingExamples,
-  });
+  const [saveable, setSaveable] = React.useState(true);
 
   const { response, setResponse, loading, generate } = useGenerateGraph({
     nodes, edges, layout, showingExamples, setNodes, setEdges, setLayout,
@@ -55,6 +53,16 @@ export default function InfiniteCanvas() {
   const { addNode, clear } = useGraphActions({
     nodes, showingExamples, setNodes, setEdges, setShowingExamples, setResponse,
   });
+
+  React.useEffect(() => {
+    if (!saveable) return;
+    console.log("Calling Save API")
+    fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nodes, edges, layout }),
+    });
+  }, [nodes, edges]);
 
   async function handleSubmit(value: string) {
     if (showingExamples) {

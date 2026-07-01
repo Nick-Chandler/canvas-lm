@@ -2,7 +2,10 @@
 
 ## Files
 
-- `db.ts` — The database layer. Exposes a singleton `getDb(): PrismaClient` created via the `@prisma/adapter-neon` driver adapter, connecting through `DATABASE_URL`. Also defines a `PackagedData` type with `packageData`/`unpackageData` helpers (layout + nodes + edges) and a `logData()` debug helper for a `UserWorkspace`.
+- `db.ts` — The database layer. Exposes a singleton `getDb(): PrismaClient` created via the `@prisma/adapter-neon` driver adapter, connecting through `DATABASE_URL`. Also defines a `PackagedData` type with `packageData`/`unpackageData` helpers (layout + nodes + edges) and a `logData()` debug helper for a `UserWorkspace`. Exposes the workspace read/write API used by `app/api/save/route.ts` and `app/page.tsx`:
+  - `saveWorkspace(userId, nodes, edges, layout, workspaceId?)` — create-or-update upsert of the user's workspace row;
+  - `getMostRecentWorkspace(user_id)` — the most recently updated workspace (`orderBy updated_at desc, take 1`);
+  - `getMostRecentWorkspaces(user_id, n)` — the `n` most recent.
 - `compactGraph.ts` — **Lives here, not in `app/canvas/`.** The bidirectional serializer between the ReactFlow graph and the compact text format:
   - `graphToCompact(nodes, edges, layout)` → compact text for model context;
   - `parseCompactGraphToFull(text)` → nodes/edges, then positioned via `applyLayout`.

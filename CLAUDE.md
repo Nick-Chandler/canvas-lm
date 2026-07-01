@@ -28,7 +28,7 @@ Required env vars (`.env.local` locally, Vercel dashboard in production):
 
 ## Architecture
 
-Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*.
+Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*. The graph is persisted per user via a save/load round-trip: the canvas POSTs to `/api/save` (→ `saveWorkspace`), and `page.tsx` loads the most recent workspace (→ `getMostRecentWorkspace`) and hydrates the canvas through a `data` prop.
 
 ### Directory map — where deeper guidance lives
 

@@ -1,0 +1,14 @@
+{
+  "layout": "flowchart",
+  "nodes": [
+    { "id": "1", "type": "canvasNode", "position": { "x": 0, "y": 0 }, "data": { "label": "Start" } },
+    { "id": "2", "type": "canvasNode", "position": { "x": 0, "y": 120 }, "data": { "label": "Is it raining?" } },
+    { "id": "3", "type": "canvasNode", "position": { "x": -150, "y": 240 }, "data": { "label": "Take umbrella" } },
+    { "id": "4", "type": "canvasNode", "position": { "x": 150, "y": 240 }, "data": { "label": "Leave" } }
+  ],
+  "edges": [
+    { "id": "e1-2", "source": "1", "target": "2" },
+    { "id": "e2-3", "source": "2", "target": "3", "label": "Yes" },
+    { "id": "e2-4", "source": "2", "target": "4", "label": "No" }
+  ]
+}
