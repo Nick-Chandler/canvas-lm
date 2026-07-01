@@ -12,7 +12,7 @@
   font-weight: 500;
   color: #fafaf7;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
-  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
   min-width: 80px;
   text-align: center;
 }
