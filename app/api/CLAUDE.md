@@ -1,16 +1,14 @@
 # app/api/ — Route handlers & the model contract
 
-Next.js App Router route handlers. Most API routes are **not** middleware-auth-gated — the `proxy.ts` matcher excludes `api`. The exception is `/api/save`, which is added back explicitly to the matcher so `clerkMiddleware()` runs and its `auth()` call has context. Middleware there attaches Clerk context but does not block the route; `save/route.ts` gates itself with its own `userId` check.
+Next.js App Router route handlers. API routes are **not** middleware-auth-gated — the `proxy.ts` matcher excludes `api` entirely. A route that needs auth must call Clerk's `auth()` itself.
+
+Workspace persistence (`saveWorkspace`) is no longer a route handler — it's the Server Action `saveWorkspaceAction` in `app/lib/actions.ts`, called directly from `app/canvas/Canvas.tsx`. See `app/lib/CLAUDE.md`.
 
 ## `generate/route.ts`
 
 POST endpoint. Accepts `{ prompt, currentGraph? }`, calls OpenRouter via the Vercel AI SDK (`streamText`), and returns a **streamed plain-text** response (`toTextStreamResponse()`). When `currentGraph` is present, the prompt instructs the model to update/extend the existing diagram.
 
 **Model selection**: `const activeModel = models.<key>` from a `models` map (gemini/qwen/deepseek/etc.; currently `gemini` → `google/gemini-3.5-flash:nitro`). Swap the key to change models. The compact-text format keeps responses small/fast across models.
-
-## `save/route.ts`
-
-POST endpoint that persists the current canvas. Calls Clerk `auth()` and returns **401 when there's no `userId`**. Reads `{ nodes, edges, layout }` from the body, finds the user's existing row via `getMostRecentWorkspace`, upserts it via `saveWorkspace` (both from `@/app/lib/db`), and returns the saved row as JSON. This is the one API route the `proxy.ts` matcher re-includes (see intro).
 
 ## `generate/systems/systemPrompt.ts`
 

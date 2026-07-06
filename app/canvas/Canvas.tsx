@@ -44,7 +44,6 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
   const [edges, setEdges] = React.useState<Edge[]>(data?.edges ?? initialEdges);
   const [layout, setLayout] = React.useState<LayoutType>(data?.layout ?? 'network');
   const [showingExamples, setShowingExamples] = React.useState(data == null);
-
   const [saveable, setSaveable] = React.useState(true);
 
   const { response, setResponse, loading, generate } = useGenerateGraph({

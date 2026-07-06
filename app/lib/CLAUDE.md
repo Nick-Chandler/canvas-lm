@@ -2,11 +2,11 @@
 
 ## Files
 
-- `db.ts` — The database layer (the Data Access Layer — no `'use server'` directive; not all its exports are async server-action-shaped). Exposes a singleton `getDb(): PrismaClient` created via the `@prisma/adapter-neon` driver adapter, connecting through `DATABASE_URL`. Also defines a `PackagedData` type with `packageData`/`unpackageData` helpers (layout + nodes + edges) and a `logData()` debug helper for a `UserWorkspace`. Exposes the workspace read/write API used by `actions.ts`, `app/api/save/route.ts`, and `app/page.tsx`:
+- `db.ts` — The database layer (the Data Access Layer — no `'use server'` directive; not all its exports are async server-action-shaped). Exposes a singleton `getDb(): PrismaClient` created via the `@prisma/adapter-neon` driver adapter, connecting through `DATABASE_URL`. Also defines a `PackagedData` type with `packageData`/`unpackageData` helpers (layout + nodes + edges) and a `logData()` debug helper for a `UserWorkspace`. Exposes the workspace read/write API used by `actions.ts` and `app/page.tsx`:
   - `saveWorkspace(userId, nodes, edges, layout, workspaceId?)` — create-or-update upsert of the user's workspace row;
   - `getMostRecentWorkspace(user_id)` — the most recently updated workspace (`orderBy updated_at desc, take 1`);
   - `getMostRecentWorkspaces(user_id, n)` — the `n` most recent.
-- `actions.ts` — `'use server'` file, callable directly from Client Components. `saveWorkspaceAction(nodes, edges, layout)` re-authenticates via Clerk's `auth()` (server actions are reachable independent of any page-level auth check), looks up the user's existing workspace via `getMostRecentWorkspace`, and upserts via `saveWorkspace`. Used by `app/canvas/Canvas.tsx` in place of the `/api/save` route, which still exists but is currently unused (kept temporarily, not yet removed).
+- `actions.ts` — `'use server'` file, callable directly from Client Components. `saveWorkspaceAction(nodes, edges, layout)` re-authenticates via Clerk's `auth()` (server actions are reachable independent of any page-level auth check), looks up the user's existing workspace via `getMostRecentWorkspace`, and upserts via `saveWorkspace`. Called directly from `app/canvas/Canvas.tsx` — this is now the only way the workspace gets saved (there is no `/api/save` route).
 - `compactGraph.ts` — **Lives here, not in `app/canvas/`.** The bidirectional serializer between the ReactFlow graph and the compact text format:
   - `graphToCompact(nodes, edges, layout)` → compact text for model context;
   - `parseCompactGraphToFull(text)` → nodes/edges, then positioned via `applyLayout`.

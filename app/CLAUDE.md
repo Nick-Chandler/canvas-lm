@@ -16,7 +16,7 @@ The app uses [Clerk](https://clerk.com). Clerk's middleware runs via `clerkMiddl
 
 Note: In Next.js 16 the `middleware.ts` file convention is deprecated in favor of `proxy.ts`. Use `proxy.ts` (not `middleware.ts`) for Clerk's middleware. Do not create a `middleware.ts` alongside it — the matcher in `proxy.ts` already runs auth on everything except `_next/static`, `_next/image`, `favicon.ico`, files with extensions, and the `/api` routes.
 
-This means **pages are auth-gated, but API routes are not** (the matcher excludes `api`) — with one explicit exception: `/api/save` is added back to the matcher so its `auth()` call works.
+This means **pages are auth-gated, but API routes are not** (the matcher excludes `api`). Anything under `api/` or in a Server Action that needs auth (e.g. `app/lib/actions.ts`) must call Clerk's `auth()` itself.
 
 ### Clerk docs
 
