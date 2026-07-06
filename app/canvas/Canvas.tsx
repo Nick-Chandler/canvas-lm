@@ -17,6 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './Canvas.css';
+import { useAuth } from '@clerk/nextjs';
 import { LayoutType } from '@/app/lib/graphLayout';
 import type { PackagedData } from '@/app/lib/db';
 import { saveWorkspaceAction } from '@/app/lib/actions';
@@ -40,11 +41,21 @@ const initialEdges: Edge[] = [
 ];
 
 export default function InfiniteCanvas({ data }: { data?: PackagedData | null }) {
+
+  // Diagram State
   const [nodes, setNodes] = React.useState<Node[]>(data?.nodes ?? initialNodes);
   const [edges, setEdges] = React.useState<Edge[]>(data?.edges ?? initialEdges);
   const [layout, setLayout] = React.useState<LayoutType>(data?.layout ?? 'network');
+
+  // Tutorial Nodes Showing?
   const [showingExamples, setShowingExamples] = React.useState(data == null);
+
+  // Save State
   const [saveable, setSaveable] = React.useState(true);
+  const [saveStatus, setSaveStatus] = React.useState<'saving' | 'success' | 'error' | null>(null);
+
+  
+  const { isSignedIn } = useAuth();
 
   const { response, setResponse, loading, generate } = useGenerateGraph({
     nodes, edges, layout, showingExamples, setNodes, setEdges, setLayout,
@@ -56,7 +67,17 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
 
   React.useEffect(() => {
     if (!saveable) return;
-    saveWorkspaceAction(nodes, edges, layout);
+    let cancelled = false;
+    (async () => {
+      setSaveStatus('saving');
+      try {
+        await saveWorkspaceAction(nodes, edges, layout);
+        if (!cancelled) setSaveStatus('success');
+      } catch {
+        if (!cancelled) setSaveStatus('error');
+      }
+    })();
+    return () => { cancelled = true; };
   }, [nodes, edges, layout, saveable]);
 
   async function handleSubmit(value: string) {
@@ -73,6 +94,13 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
       <Toolbar onAddNode={addNode} onClear={clear} />
       <div className="top-right-overlay">
         <AuthControl />
+        {isSignedIn && saveStatus && (
+          <div className={`save-status save-status-${saveStatus}`}>
+            {saveStatus === 'saving' && 'Saving…'}
+            {saveStatus === 'success' && 'Saved'}
+            {saveStatus === 'error' && 'Save failed'}
+          </div>
+        )}
         <ResponseBox response={response} />
       </div>
       {loading && <div className="loading-watermark">Generating diagram...</div>}

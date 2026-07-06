@@ -137,6 +137,29 @@
   border-color: #78716c;
 }
 
+.save-status {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  background: #1c1917;
+  border: 1px solid #44403c;
+  white-space: nowrap;
+}
+
+.save-status-saving {
+  color: #a8a29e;
+}
+
+.save-status-success {
+  color: #86a08a;
+}
+
+.save-status-error {
+  color: #f87171;
+}
+
 .response-box {
   background: #1e1e1e;
   color: #d4d4d4;
