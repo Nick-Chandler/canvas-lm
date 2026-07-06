@@ -19,6 +19,7 @@ import '@xyflow/react/dist/style.css';
 import './Canvas.css';
 import { LayoutType } from '@/app/lib/graphLayout';
 import type { PackagedData } from '@/app/lib/db';
+import { saveWorkspaceAction } from '@/app/lib/actions';
 import CanvasNode from './CanvasNode';
 import { useGenerateGraph } from './hooks/useGenerateGraph';
 import { useGraphActions } from './hooks/useGraphActions';
@@ -56,12 +57,7 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
 
   React.useEffect(() => {
     if (!saveable) return;
-    console.log("Calling Save API")
-    fetch('/api/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nodes, edges, layout }),
-    });
+    saveWorkspaceAction(nodes, edges, layout);
   }, [nodes, edges, layout, saveable]);
 
   async function handleSubmit(value: string) {
