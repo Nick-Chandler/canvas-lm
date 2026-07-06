@@ -62,7 +62,7 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nodes, edges, layout }),
     });
-  }, [nodes, edges]);
+  }, [nodes, edges, layout, saveable]);
 
   async function handleSubmit(value: string) {
     if (showingExamples) {
