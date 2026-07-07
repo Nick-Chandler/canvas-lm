@@ -42,18 +42,19 @@ export async function saveWorkspace(
   nodes: Node[],
   edges: Edge[],
   layout: LayoutType,
-  workspaceId?: string | null
+  workspaceId?: string | null,
+  wsName?: string | null
 ): Promise<UserWorkspace> {
   console.log("Saving Workspace...")
   const data = JSON.parse(JSON.stringify(packageData(layout, nodes, edges)));
   if (workspaceId != null) {
     return getDb().userWorkspace.update({
       where: { id: workspaceId },
-      data: { data },
+      data: { data, ws_name: wsName },
     });
   }
   return getDb().userWorkspace.create({
-    data: { user_id: userId, data },
+    data: { user_id: userId, data, ws_name: wsName },
   });
 }
 

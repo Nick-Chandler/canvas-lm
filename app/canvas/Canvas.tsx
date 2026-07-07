@@ -14,6 +14,7 @@ import {
   applyEdgeChanges,
   Connection,
   addEdge,
+  useNodesInitialized,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './Canvas.css';
@@ -28,8 +29,17 @@ import Toolbar from './components/Toolbar';
 import AuthControl from './components/AuthControl';
 import ResponseBox from './components/ResponseBox';
 import PromptInput from './components/PromptInput';
+import WorkspaceTitle from './components/WorkspaceTitle';
 
 const nodeTypes = { canvasNode: CanvasNode };
+
+// Signals once ReactFlow has measured every node (and thus fit the view correctly).
+// Rendered inside <ReactFlow> so it has access to the flow context.
+function FitOnReady({ onReady }: { onReady: () => void }) {
+  const initialized = useNodesInitialized();
+  React.useEffect(() => { if (initialized) onReady(); }, [initialized, onReady]);
+  return null;
+}
 
 const initialNodes: Node[] = [
   { id: '1', type: 'canvasNode', position: { x: 100, y: 50 }, data: { label: 'Enter what you want to visualize' } },
@@ -40,15 +50,21 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-export default function InfiniteCanvas({ data }: { data?: PackagedData | null }) {
+export default function InfiniteCanvas({ data, wsName }: { data?: PackagedData | null; wsName?: string | null }) {
 
   // Diagram State
   const [nodes, setNodes] = React.useState<Node[]>(data?.nodes ?? initialNodes);
   const [edges, setEdges] = React.useState<Edge[]>(data?.edges ?? initialEdges);
   const [layout, setLayout] = React.useState<LayoutType>(data?.layout ?? 'network');
 
+  // Workspace Title
+  const [title, setTitle] = React.useState(wsName ?? 'Untitled workspace');
+
   // Tutorial Nodes Showing?
   const [showingExamples, setShowingExamples] = React.useState(data == null);
+
+  // Hide the canvas until nodes are measured, to avoid the fitView flash on load.
+  const [ready, setReady] = React.useState(false);
 
   // Save State
   const [saveable, setSaveable] = React.useState(true);
@@ -71,14 +87,14 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
     (async () => {
       setSaveStatus('saving');
       try {
-        await saveWorkspaceAction(nodes, edges, layout);
+        await saveWorkspaceAction(nodes, edges, layout, title);
         if (!cancelled) setSaveStatus('success');
       } catch {
         if (!cancelled) setSaveStatus('error');
       }
     })();
     return () => { cancelled = true; };
-  }, [nodes, edges, layout, saveable]);
+  }, [nodes, edges, layout, title, saveable]);
 
   async function handleSubmit(value: string) {
     if (showingExamples) {
@@ -91,21 +107,25 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
 
   return (
     <div className="canvas-wrapper">
-      <Toolbar onAddNode={addNode} onClear={clear} />
-      <div className="top-right-overlay">
-        <AuthControl />
-        {isSignedIn && saveStatus && (
-          <div className={`save-status save-status-${saveStatus}`}>
-            {saveStatus === 'saving' && 'Saving…'}
-            {saveStatus === 'success' && 'Saved'}
-            {saveStatus === 'error' && 'Save failed'}
-          </div>
-        )}
-        <ResponseBox response={response} />
+      <div className="canvas-topbar">
+        <Toolbar onAddNode={addNode} onClear={clear} />
+        <WorkspaceTitle value={title} onCommit={setTitle} />
+        <div className="top-right-overlay">
+          <AuthControl />
+          {isSignedIn && saveStatus && (
+            <div className={`save-status save-status-${saveStatus}`}>
+              {saveStatus === 'saving' && 'Saving…'}
+              {saveStatus === 'success' && 'Saved'}
+              {saveStatus === 'error' && 'Save failed'}
+            </div>
+          )}
+          <ResponseBox response={response} />
+        </div>
       </div>
       {loading && <div className="loading-watermark">Generating diagram...</div>}
       <PromptInput onSubmitAction={handleSubmit} />
       <ReactFlow
+        className={ready ? 'canvas-ready' : 'canvas-loading'}
         nodes={nodes}
         edges={edges}
         onNodesChange={(changes: NodeChange[]) => setNodes(applyNodeChanges(changes, nodes))}
@@ -118,6 +138,7 @@ export default function InfiniteCanvas({ data }: { data?: PackagedData | null })
         fitView
         proOptions={{ hideAttribution: true }}
       >
+        <FitOnReady onReady={() => setReady(true)} />
         <Background />
         <Controls />
         <MiniMap />

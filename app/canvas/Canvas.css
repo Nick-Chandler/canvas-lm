@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500&display=swap');
-
 /* ── Nodes ────────────────────────────────────────────────── */
 
 .react-flow__node-canvasNode {
@@ -7,7 +5,7 @@
   border: 1px solid #44403c;
   border-radius: 10px;
   padding: 9px 18px;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: #fafaf7;
@@ -81,11 +79,31 @@
   height: 100vh;
 }
 
-.canvas-toolbar {
+/* Hide the graph until ReactFlow has measured nodes and fit the view,
+   so the pre-measurement viewport flash isn't visible on load. */
+.react-flow {
+  transition: opacity 0.2s ease;
+}
+
+.react-flow.canvas-loading {
+  opacity: 0;
+}
+
+.canvas-topbar {
   position: absolute;
   z-index: 10;
   top: 16px;
   left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.canvas-toolbar {
   display: flex;
   gap: 8px;
 }
@@ -105,13 +123,36 @@
 }
 
 .top-right-overlay {
-  position: absolute;
-  z-index: 10;
-  top: 8px;
-  right: 8px;
   display: flex;
   align-items: flex-start;
   gap: 8px;
+}
+
+.workspace-title {
+  position: absolute;
+  left: 35%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font-family: var(--font-outfit), sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1c1917;
+  text-align: center;
+  outline: none;
+}
+
+.workspace-title:hover {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.workspace-title:focus {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .auth-control {
@@ -125,7 +166,7 @@
   border-radius: 6px;
   background: #1c1917;
   color: #fafaf7;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -140,7 +181,7 @@
 .save-status {
   padding: 6px 10px;
   border-radius: 6px;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-outfit), sans-serif;
   font-size: 12px;
   font-weight: 500;
   background: #1c1917;

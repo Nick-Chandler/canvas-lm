@@ -17,7 +17,7 @@ export default async function CanvasPage() {
 
   return (
     <main>
-      <InfiniteCanvas data={data} />
+      <InfiniteCanvas data={data} wsName={workspace?.ws_name ?? null} />
     </main>
   );
 }
