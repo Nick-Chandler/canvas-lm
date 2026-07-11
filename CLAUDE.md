@@ -28,7 +28,9 @@ Required env vars (`.env.local` locally, Vercel dashboard in production):
 
 ## Architecture
 
-Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*. The graph is persisted per user via a save/load round-trip: the canvas POSTs to `/api/save` (→ `saveWorkspace`), and `page.tsx` loads the most recent workspace (→ `getMostRecentWorkspace`) and hydrates the canvas through a `data` prop.
+Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*. The graph is persisted per user via a save/load round-trip: the canvas calls the `saveWorkspaceAction` Server Action (→ `saveWorkspace`), and `app/canvas/page.tsx` loads the most recent workspace (→ `getMostRecentWorkspace`) and hydrates the canvas through a `data` prop.
+
+Routes: `/` (`app/page.tsx`) redirects to `/canvas` (`app/canvas/page.tsx`), which is where the app actually lives.
 
 ### Directory map — where deeper guidance lives
 
@@ -36,7 +38,7 @@ Next.js 16 App Router project. It's an AI diagram generator: the user types a pr
 |---|---|---|
 | `app/` | App Router shell, Clerk/Analytics providers, auth-gated pages | `app/CLAUDE.md` |
 | `app/api/` | Model calls (OpenRouter via Vercel AI SDK) + the compact-text contract | `app/api/CLAUDE.md` |
-| `app/canvas/` | Client ReactFlow UI | `app/canvas/CLAUDE.md` |
+| `app/canvas/` | The `/canvas` route + client ReactFlow UI | `app/canvas/CLAUDE.md` |
 | `app/lib/` | Shared infra: Prisma/Neon DB, graph serialization, and the deterministic layout engine | `app/lib/CLAUDE.md` |
 
 ## Conventions

@@ -50,7 +50,7 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-export default function InfiniteCanvas({ data, wsName }: { data?: PackagedData | null; wsName?: string | null }) {
+export default function Canvas({ data, wsName }: { data?: PackagedData | null; wsName?: string | null }) {
 
   // Diagram State
   const [nodes, setNodes] = React.useState<Node[]>(data?.nodes ?? initialNodes);
@@ -70,17 +70,20 @@ export default function InfiniteCanvas({ data, wsName }: { data?: PackagedData |
   const [saveable, setSaveable] = React.useState(true);
   const [saveStatus, setSaveStatus] = React.useState<'saving' | 'success' | 'error' | null>(null);
 
-  
+  // Auth
   const { isSignedIn } = useAuth();
 
+  // Generate Graph Hook
   const { response, setResponse, loading, generate } = useGenerateGraph({
     nodes, edges, layout, showingExamples, setNodes, setEdges, setLayout,
   });
 
+  // Graph Actions Hook - eg. addNode, clear, etc.
   const { addNode, clear } = useGraphActions({
     nodes, showingExamples, setNodes, setEdges, setShowingExamples, setResponse,
   });
 
+  // Triggers save on change
   React.useEffect(() => {
     if (!saveable) return;
     let cancelled = false;
@@ -96,6 +99,7 @@ export default function InfiniteCanvas({ data, wsName }: { data?: PackagedData |
     return () => { cancelled = true; };
   }, [nodes, edges, layout, title, saveable]);
 
+  // Submit
   async function handleSubmit(value: string) {
     if (showingExamples) {
       setNodes([]);
