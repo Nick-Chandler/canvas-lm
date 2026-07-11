@@ -1,15 +1,16 @@
 # app/canvas/ — ReactFlow UI
 
-The client canvas, and the `/canvas` route that serves it. `app/page.tsx` (the `/` route) just redirects here.
+The client canvas and the routes that serve it. A workspace is always identified **by id in the URL** (`/canvas/[id]`) — nothing here infers "the workspace you meant" from recency. Users normally arrive from `/dashboard`.
 
 ## Files
 
-- `page.tsx` — The `/canvas` route (Server Component, `CanvasPage`). Reads the Clerk `userId` via `auth()`, and when signed in fetches the user's most recent workspace via `getMostRecentWorkspace(userId)`, unwraps `workspace.data` to a `PackagedData | null`, then renders `<Canvas data={data} wsName={workspace?.ws_name ?? null} />` — hydrating the canvas from the saved workspace.
-- `Canvas.tsx` — Main Client Component (`'use client'`), `Canvas`. The source of truth for `nodes`/`edges`/`layout`/`title` state, which it **seeds from the `data` and `wsName` props** passed by `page.tsx`. It:
+- `[id]/page.tsx` — The `/canvas/[id]` route (Server Component, `WorkspacePage`). `await params` for the id (params are async in Next.js 16), reads the Clerk `userId` via `auth()`, fetches that one workspace via `getWorkspace(id, userId)` and calls `notFound()` when it comes back null — which covers both "no such workspace" and "not yours". Renders `<Canvas workspaceId={id} data={...} wsName={...} />`, hydrating the canvas from the saved row.
+- `page.tsx` — The bare `/canvas` route: a convenience shortcut, not where the canvas really lives. Signed in with at least one workspace ⇒ `redirect`s to `/canvas/<most recent id>`. Otherwise (signed out, or no workspaces yet) it renders `<Canvas workspaceId={null} data={null} />` — an unsaved playground canvas, since `proxy.ts` runs `clerkMiddleware` without `auth.protect()` and signed-out visitors do reach this page.
+- `Canvas.tsx` — Main Client Component (`'use client'`), `Canvas`. The source of truth for `nodes`/`edges`/`layout`/`title` state, which it **seeds from the `data` and `wsName` props** passed by the route. It:
   - renders the `<ReactFlow>` graph plus the topbar (`Toolbar`, `WorkspaceTitle`, `AuthControl`, `ResponseBox`) and `PromptInput`;
   - registers the custom node type via `nodeTypes = { canvasNode: CanvasNode }`;
   - delegates generation to `useGenerateGraph` and node add/clear to `useGraphActions` (see `hooks/` below);
-  - persists the graph server-side by calling `saveWorkspaceAction(nodes, edges, layout, title)` (a `'use server'` action from `@/app/lib/actions`) in a `useEffect` on `[nodes, edges, layout, title, saveable]`, surfacing a saving/success/error indicator. A local `saveable` flag gates the save — `onNodeDragStart`/`onNodeDragStop` toggle it so intermediate drag positions aren't saved. A `showingExamples` boolean is initialized to `data == null`, so the placeholder nodes show only when the server provided no saved graph; the first generate or manual add clears them;
+  - persists the graph server-side by calling `saveWorkspaceAction(workspaceId, nodes, edges, layout, title)` (a `'use server'` action from `@/app/lib/actions`) in a `useEffect`, surfacing a saving/success/error indicator. Three things gate the save: `saveable` (toggled by `onNodeDragStart`/`onNodeDragStop`, so intermediate drag positions aren't written), a non-null `workspaceId` (the playground canvas has no row to save to), and `!showingExamples` (the placeholder nodes are not the user's content and must never be persisted). A `showingExamples` boolean is initialized from whether the incoming `data` has any nodes — **not** from `data == null`, because a freshly created workspace is a real row holding an empty graph; the first generate or manual add clears the placeholders;
   - hides the graph until ReactFlow has measured every node (`FitOnReady` + `useNodesInitialized`) to avoid a `fitView` flash on load.
 - `CanvasNode.tsx` — The custom ReactFlow node (`type: 'canvasNode'`). Renders the label with source/target `Handle`s; double-click to edit, Enter/blur to commit (writes back via `useReactFlow().setNodes`), Escape to cancel.
 - `hooks/`

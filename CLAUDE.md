@@ -28,9 +28,13 @@ Required env vars (`.env.local` locally, Vercel dashboard in production):
 
 ## Architecture
 
-Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*. The graph is persisted per user via a save/load round-trip: the canvas calls the `saveWorkspaceAction` Server Action (→ `saveWorkspace`), and `app/canvas/page.tsx` loads the most recent workspace (→ `getMostRecentWorkspace`) and hydrates the canvas through a `data` prop.
+Next.js 16 App Router project. It's an AI diagram generator: the user types a prompt, a model returns a graph as **compact text** (not coordinates), the client parses it, computes node positions locally, and renders it with ReactFlow (`@xyflow/react`). The model never emits coordinates — it only declares one of several layout *shapes*. A user may own many workspaces; each is one row keyed by a UUID. The graph is persisted via a save/load round-trip keyed on **that id, taken from the URL**: `app/canvas/[id]/page.tsx` loads the workspace (→ `getWorkspace(id, userId)`) and hydrates the canvas through a `data` prop, and the canvas saves back to the same id via the `saveWorkspaceAction` Server Action (→ `saveWorkspace`).
 
-Routes: `/` (`app/page.tsx`) redirects to `/canvas` (`app/canvas/page.tsx`), which is where the app actually lives.
+Routes:
+- `/` (`app/page.tsx`) redirects to `/dashboard`.
+- `/dashboard` (`app/dashboard/page.tsx`) — workspace picker. Lists the user's workspaces (`getAllWorkspaces`), each linking to `/canvas/<id>`; card previews are still blank (no thumbnails yet). "New diagram" posts to `createWorkspaceAction`, which creates an empty row and redirects into it.
+- `/canvas/[id]` — the app itself, one workspace.
+- `/canvas` — shortcut that redirects to the most recent workspace (or renders an unsaved playground canvas when there is none).
 
 ### Directory map — where deeper guidance lives
 
@@ -38,7 +42,7 @@ Routes: `/` (`app/page.tsx`) redirects to `/canvas` (`app/canvas/page.tsx`), whi
 |---|---|---|
 | `app/` | App Router shell, Clerk/Analytics providers, auth-gated pages | `app/CLAUDE.md` |
 | `app/api/` | Model calls (OpenRouter via Vercel AI SDK) + the compact-text contract | `app/api/CLAUDE.md` |
-| `app/canvas/` | The `/canvas` route + client ReactFlow UI | `app/canvas/CLAUDE.md` |
+| `app/canvas/` | The `/canvas/[id]` route + client ReactFlow UI | `app/canvas/CLAUDE.md` |
 | `app/lib/` | Shared infra: Prisma/Neon DB, graph serialization, and the deterministic layout engine | `app/lib/CLAUDE.md` |
 
 ## Conventions

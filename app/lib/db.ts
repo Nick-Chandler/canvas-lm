@@ -58,6 +58,13 @@ export async function saveWorkspace(
   });
 }
 
+export async function getWorkspace(
+  id: string,
+  user_id: string
+): Promise<UserWorkspace | null> {
+  return getDb().userWorkspace.findFirst({ where: { id, user_id } });
+}
+
 export async function getMostRecentWorkspaces(
   user_id: string,
   n: number
@@ -66,6 +73,15 @@ export async function getMostRecentWorkspaces(
     where: { user_id },
     orderBy: { updated_at: "desc" },
     take: n,
+  });
+}
+
+export async function getAllWorkspaces(
+  user_id: string
+): Promise<UserWorkspace[]> {
+  return getDb().userWorkspace.findMany({
+    where: { user_id },
+    orderBy: { updated_at: "desc" },
   });
 }
 

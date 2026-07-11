@@ -1,23 +1,18 @@
-import Canvas from './Canvas';
 import { auth } from '@clerk/nextjs/server';
-import { getMostRecentWorkspace, type PackagedData } from '../lib/db';
-import React from 'react';
+import { redirect } from 'next/navigation';
+import Canvas from './Canvas';
+import { getMostRecentWorkspace } from '../lib/db';
 
+// A shortcut into the user's most recent workspace. Signed-out visitors (and
+// signed-in users with no workspaces yet) get an unsaved playground canvas.
 export default async function CanvasPage() {
-  const { userId } = await auth()
-  if (!(userId == null)) {
-    console.log("User signed in!")
-    console.log(userId)
-  }
-  else console.log("User NOT signed in")
-
+  const { userId } = await auth();
   const workspace = userId ? await getMostRecentWorkspace(userId) : null;
-  console.log(workspace)
-  const data = (workspace?.data ?? null) as PackagedData | null;
+  if (workspace) redirect(`/canvas/${workspace.id}`);
 
   return (
     <main>
-      <Canvas data={data} wsName={workspace?.ws_name ?? null} />
+      <Canvas workspaceId={null} data={null} />
     </main>
   );
 }

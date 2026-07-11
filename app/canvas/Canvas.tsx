@@ -50,18 +50,22 @@ const initialEdges: Edge[] = [
   { id: 'e1-2', source: '1', target: '2', animated: true },
 ];
 
-export default function Canvas({ data, wsName }: { data?: PackagedData | null; wsName?: string | null }) {
+export default function Canvas({ workspaceId, data, wsName }: { workspaceId: string | null; data?: PackagedData | null; wsName?: string | null }) {
+
+  // A brand-new workspace is saved with an empty graph, so "no saved nodes"
+  // — not "no saved workspace" — is what means we should show the examples.
+  const isEmpty = !data?.nodes?.length;
 
   // Diagram State
-  const [nodes, setNodes] = React.useState<Node[]>(data?.nodes ?? initialNodes);
-  const [edges, setEdges] = React.useState<Edge[]>(data?.edges ?? initialEdges);
+  const [nodes, setNodes] = React.useState<Node[]>(isEmpty ? initialNodes : data!.nodes);
+  const [edges, setEdges] = React.useState<Edge[]>(isEmpty ? initialEdges : data!.edges);
   const [layout, setLayout] = React.useState<LayoutType>(data?.layout ?? 'network');
 
   // Workspace Title
   const [title, setTitle] = React.useState(wsName ?? 'Untitled workspace');
 
   // Tutorial Nodes Showing?
-  const [showingExamples, setShowingExamples] = React.useState(data == null);
+  const [showingExamples, setShowingExamples] = React.useState(isEmpty);
 
   // Hide the canvas until nodes are measured, to avoid the fitView flash on load.
   const [ready, setReady] = React.useState(false);
@@ -83,21 +87,22 @@ export default function Canvas({ data, wsName }: { data?: PackagedData | null; w
     nodes, showingExamples, setNodes, setEdges, setShowingExamples, setResponse,
   });
 
-  // Triggers save on change
+  // Triggers save on change. No workspace (signed-out playground) means nowhere
+  // to save; the placeholder examples aren't the user's content, so skip those too.
   React.useEffect(() => {
-    if (!saveable) return;
+    if (!saveable || !workspaceId || showingExamples) return;
     let cancelled = false;
     (async () => {
       setSaveStatus('saving');
       try {
-        await saveWorkspaceAction(nodes, edges, layout, title);
+        await saveWorkspaceAction(workspaceId, nodes, edges, layout, title);
         if (!cancelled) setSaveStatus('success');
       } catch {
         if (!cancelled) setSaveStatus('error');
       }
     })();
     return () => { cancelled = true; };
-  }, [nodes, edges, layout, title, saveable]);
+  }, [workspaceId, nodes, edges, layout, title, saveable, showingExamples]);
 
   // Submit
   async function handleSubmit(value: string) {
