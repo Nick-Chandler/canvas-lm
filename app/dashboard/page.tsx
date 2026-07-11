@@ -5,6 +5,7 @@ import { auth } from '@clerk/nextjs/server';
 import { createWorkspaceAction } from '@/app/lib/actions';
 import { getAllWorkspaces } from '@/app/lib/db';
 import { timeAgo } from '@/app/lib/utils';
+import WorkspaceCardActions from './WorkspaceCardActions';
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -23,13 +24,16 @@ export default async function DashboardPage() {
 
       <div className="workspace-grid">
         {workspaces.map(ws => (
-          <Link key={ws.id} href={`/canvas/${ws.id}`} className="workspace-card">
-            <div className="workspace-card-preview" />
-            <div className="workspace-card-footer">
-              <span className="workspace-card-name">{ws.ws_name ?? 'Untitled diagram'}</span>
-              <span className="workspace-card-updated">{timeAgo(ws.updated_at)}</span>
-            </div>
-          </Link>
+          <div key={ws.id} className="workspace-card">
+            <Link href={`/canvas/${ws.id}`} className="workspace-card-link">
+              <div className="workspace-card-preview" />
+              <div className="workspace-card-footer">
+                <span className="workspace-card-name">{ws.ws_name ?? 'Untitled diagram'}</span>
+                <span className="workspace-card-updated">{timeAgo(ws.updated_at)}</span>
+              </div>
+            </Link>
+            <WorkspaceCardActions id={ws.id} name={ws.ws_name ?? 'Untitled diagram'} />
+          </div>
         ))}
       </div>
     </main>

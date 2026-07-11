@@ -58,6 +58,30 @@ export async function saveWorkspace(
   });
 }
 
+// Both scope by user_id so a user can't rename or delete someone else's
+// workspace by guessing its UUID; a miss simply affects 0 rows.
+export async function renameWorkspace(
+  id: string,
+  user_id: string,
+  wsName: string
+): Promise<boolean> {
+  const { count } = await getDb().userWorkspace.updateMany({
+    where: { id, user_id },
+    data: { ws_name: wsName },
+  });
+  return count > 0;
+}
+
+export async function deleteWorkspace(
+  id: string,
+  user_id: string
+): Promise<boolean> {
+  const { count } = await getDb().userWorkspace.deleteMany({
+    where: { id, user_id },
+  });
+  return count > 0;
+}
+
 export async function getWorkspace(
   id: string,
   user_id: string

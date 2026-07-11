@@ -26,7 +26,7 @@ import CanvasNode from './CanvasNode';
 import { useGenerateGraph } from './hooks/useGenerateGraph';
 import { useGraphActions } from './hooks/useGraphActions';
 import Toolbar from './components/Toolbar';
-import AuthControl from './components/AuthControl';
+import Navbar from './components/Navbar';
 import ResponseBox from './components/ResponseBox';
 import PromptInput from './components/PromptInput';
 import WorkspaceTitle from './components/WorkspaceTitle';
@@ -116,11 +116,11 @@ export default function Canvas({ workspaceId, data, wsName }: { workspaceId: str
 
   return (
     <div className="canvas-wrapper">
+      <Navbar />
       <div className="canvas-topbar">
         <Toolbar onAddNode={addNode} onClear={clear} />
         <WorkspaceTitle value={title} onCommit={setTitle} />
         <div className="top-right-overlay">
-          <AuthControl />
           {isSignedIn && saveStatus && (
             <div className={`save-status save-status-${saveStatus}`}>
               {saveStatus === 'saving' && 'Saving…'}
