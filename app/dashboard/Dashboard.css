@@ -90,6 +90,12 @@
 .workspace-card-preview {
   height: 200px;
   background: #fafaf9;
+  pointer-events: none;
+}
+
+.workspace-card-preview .react-flow {
+  width: 100%;
+  height: 100%;
 }
 
 .workspace-card-footer {

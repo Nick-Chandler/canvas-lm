@@ -14,7 +14,6 @@ import {
   applyEdgeChanges,
   Connection,
   addEdge,
-  useNodesInitialized,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './Canvas.css';
@@ -23,6 +22,7 @@ import { LayoutType } from '@/app/lib/graphLayout';
 import type { PackagedData } from '@/app/lib/db';
 import { saveWorkspaceAction } from '@/app/lib/actions';
 import CanvasNode from './CanvasNode';
+import FitOnReady from './FitOnReady';
 import { useGenerateGraph } from './hooks/useGenerateGraph';
 import { useGraphActions } from './hooks/useGraphActions';
 import Toolbar from './components/Toolbar';
@@ -32,14 +32,6 @@ import PromptInput from './components/PromptInput';
 import WorkspaceTitle from './components/WorkspaceTitle';
 
 const nodeTypes = { canvasNode: CanvasNode };
-
-// Signals once ReactFlow has measured every node (and thus fit the view correctly).
-// Rendered inside <ReactFlow> so it has access to the flow context.
-function FitOnReady({ onReady }: { onReady: () => void }) {
-  const initialized = useNodesInitialized();
-  React.useEffect(() => { if (initialized) onReady(); }, [initialized, onReady]);
-  return null;
-}
 
 const initialNodes: Node[] = [
   { id: '1', type: 'canvasNode', position: { x: 100, y: 50 }, data: { label: 'Enter what you want to visualize' } },

@@ -7,7 +7,7 @@ type ResponseBoxProps = {
 };
 
 export default function ResponseBox({ response }: ResponseBoxProps) {
-  const [responseExpanded, setResponseExpanded] = useState(true);
+  const [responseExpanded, setResponseExpanded] = useState(false);
   return (
     <div className="response-box">
       <div className="response-box-header" onClick={() => setResponseExpanded(e => !e)}>
