@@ -14,7 +14,7 @@ export default function ResponseBox({ response }: ResponseBoxProps) {
         <span>Response</span>
         <span>{responseExpanded ? '▲' : '▼'}</span>
       </div>
-      {responseExpanded && <pre className="response-box-content">{response}</pre>}
+      {responseExpanded && response && <pre className="response-box-content">{response}</pre>}
     </div>
   );
 }

@@ -121,6 +121,12 @@
   border-color: #78716c;
 }
 
+.navbar-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .canvas-topbar {
   position: absolute;
   z-index: 10;
@@ -128,8 +134,9 @@
   left: 16px;
   right: 16px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  gap: 48px;
   padding: 10px 16px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.04);
@@ -161,10 +168,7 @@
 }
 
 .workspace-title {
-  position: absolute;
-  left: 35%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  margin-right: auto;
   width: 220px;
   padding: 4px 8px;
   border: 1px solid transparent;
