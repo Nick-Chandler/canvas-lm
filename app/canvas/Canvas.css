@@ -163,8 +163,8 @@
 
 .top-right-overlay {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: 16px;
 }
 
 .workspace-title {
@@ -215,26 +215,11 @@
 }
 
 .save-status {
-  padding: 6px 10px;
-  border-radius: 6px;
   font-family: var(--font-outfit), sans-serif;
   font-size: 12px;
   font-weight: 500;
-  background: #1c1917;
-  border: 1px solid #44403c;
-  white-space: nowrap;
-}
-
-.save-status-saving {
   color: #a8a29e;
-}
-
-.save-status-success {
-  color: #86a08a;
-}
-
-.save-status-error {
-  color: #f87171;
+  white-space: nowrap;
 }
 
 /* The expanded content is positioned out of flow so it hangs below the topbar

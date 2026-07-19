@@ -12,6 +12,9 @@ export default async function DashboardPage() {
   const { userId } = await auth();
   const workspaces = userId ? await getAllWorkspaces(userId) : [];
 
+  // Nothing to pick from yet — drop the user straight into a new canvas.
+  if (userId && workspaces.length === 0) await createWorkspaceAction();
+
   return (
     <main className="dashboard">
       <header className="dashboard-header">

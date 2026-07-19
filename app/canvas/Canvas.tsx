@@ -65,6 +65,7 @@ export default function Canvas({ workspaceId, data, wsName }: { workspaceId: str
   // Save State
   const [saveable, setSaveable] = React.useState(true);
   const [saveStatus, setSaveStatus] = React.useState<'saving' | 'success' | 'error' | null>(null);
+  const [savedAt, setSavedAt] = React.useState<string | null>(null);
 
   // Auth
   const { isSignedIn } = useAuth();
@@ -88,7 +89,9 @@ export default function Canvas({ workspaceId, data, wsName }: { workspaceId: str
       setSaveStatus('saving');
       try {
         await saveWorkspaceAction(workspaceId, nodes, edges, layout, title);
-        if (!cancelled) setSaveStatus('success');
+        if (cancelled) return;
+        setSaveStatus('success');
+        setSavedAt(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
       } catch {
         if (!cancelled) setSaveStatus('error');
       }
@@ -114,9 +117,9 @@ export default function Canvas({ workspaceId, data, wsName }: { workspaceId: str
         <WorkspaceTitle value={title} onCommit={setTitle} />
         <div className="top-right-overlay">
           {isSignedIn && saveStatus && (
-            <div className={`save-status save-status-${saveStatus}`}>
+            <div className="save-status">
               {saveStatus === 'saving' && 'Saving…'}
-              {saveStatus === 'success' && 'Saved'}
+              {saveStatus === 'success' && `Last autosaved at: ${savedAt}`}
               {saveStatus === 'error' && 'Save failed'}
             </div>
           )}
