@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "bun --bun next dev",
+    "postinstall": "prisma generate",
     "build": "prisma generate && bun --bun next build",
     "start": "bun --bun next start",
     "lint": "eslint"
