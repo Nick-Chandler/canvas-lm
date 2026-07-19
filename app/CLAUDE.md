@@ -5,7 +5,7 @@ This directory is the application shell: the root layout, the home route, and ap
 ## Files
 
 - `layout.tsx` — Root layout. Wraps the app in `<ClerkProvider>` from `@clerk/nextjs`, imports `globals.css`, adds Vercel `Analytics` + `SpeedInsights`, and sets metadata (title "Canvas LM").
-- `page.tsx` — Home route (`/`). A Server Component that does nothing but `redirect('/dashboard')` from `next/navigation`.
+- `page.tsx` — Home route (`/`). A Server Component that does nothing but `redirect('/canvas')` from `next/navigation`, which in turn forwards to the most recent workspace (or an unsaved playground canvas when there is none).
 - `dashboard/` — The `/dashboard` route: the workspace picker users land on. An async Server Component that lists the user's real workspaces via `getAllWorkspaces(userId)`, each card a `<Link>` to `/canvas/<id>` showing `ws_name` (falling back to "Untitled diagram") and `timeAgo(updated_at)`. Card previews are still blank placeholders — there are no thumbnails yet. "New diagram" is a `<form action={createWorkspaceAction}>`, which is what lets the page stay a Server Component while still mutating. Clerk's `<UserButton>` sits top-right; the page assumes a signed-in user and is **not** auth-gated yet. `Dashboard.css` holds its styles.
 - `globals.css` — Global stylesheet (Tailwind v4 entry).
 - `icon.png` — App icon (Next.js convention file).
